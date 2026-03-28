@@ -1,27 +1,64 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="UTF-8">
-<title>Sistema PD8</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema de Denuncias PD8</title>
+    <link rel="stylesheet" href="style.css">
 </head>
-
 <body>
 
-<h1>Sistema PD8</h1>
+    <div class="container">
+        <h1>Sistema PD8</h1>
 
-<h2>Login</h2>
-<input id="login_email" placeholder="Email"><br><br>
-<input id="login_password" type="password" placeholder="Password"><br><br>
-<button onclick="login()">Ingresar</button>
+        <!-- SECCIÓN DE AUTENTICACIÓN -->
+        <div id="auth-section">
+            <div class="card">
+                <h2>Iniciar Sesión</h2>
+                <input id="login_email" type="email" placeholder="Correo electrónico">
+                <input id="login_password" type="password" placeholder="Contraseña">
+                <button onclick="login()">Ingresar</button>
+            </div>
 
-<h2>Registro</h2>
-<input id="reg_email" placeholder="Email"><br><br>
-<input id="reg_password" type="password" placeholder="Password"><br><br>
-<button onclick="registrar()">Registrarse</button>
+            <div class="card">
+                <h2>Registro</h2>
+                <input id="reg_email" type="email" placeholder="Correo electrónico">
+                <input id="reg_password" type="password" placeholder="Contraseña">
+                <button class="btn-secondary" onclick="registrar()">Crear Cuenta</button>
+            </div>
+        </div>
 
-<p id="msg"></p>
+        <!-- SECCIÓN DE DASHBOARD (OCULTA POR DEFECTO) -->
+        <div id="dashboard-section" style="display:none;">
+            <div class="card">
+                <h2>Nueva Denuncia</h2>
+                <input id="den_nombre" placeholder="Nombre completo">
+                <input id="den_ci" placeholder="Cédula de Identidad">
+                <textarea id="den_desc" placeholder="Descripción de la denuncia"></textarea>
+                <button onclick="crearDenuncia()">Enviar Denuncia</button>
+                <button class="btn-danger" onclick="cerrarSesion()">Cerrar Sesión</button>
+            </div>
 
-<script src="script.js"></script>
+            <div class="card table-container">
+                <h2>Listado de Denuncias</h2>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Nombre</th>
+                            <th>CI</th>
+                            <th>Descripción</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tabla_denuncias">
+                        <!-- Se llena con JS -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
 
+        <p id="msg"></p>
+    </div>
+
+    <script src="app.js"></script>
 </body>
 </html>
