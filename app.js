@@ -1,5 +1,7 @@
-// Verifica que sea -ll (ele-ele) como en tu pestaña de Netlify
-const API = "https://analisis-y-diseno-de-sistemas-ll.onrender.com";
+
+const API = "https://analisis-y-diseno-de-sistemas-2-backend.onrender.com";
+
+// El resto de tus funciones (registrar, login) se quedan igual
 
 async function registrar() {
     const email = document.getElementById("reg_email").value;
