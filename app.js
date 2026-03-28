@@ -1,9 +1,12 @@
-const API = "https://analisis-y-diseno-de-sistemas-ii.onrender.com";
+// ASEGÚRATE DE QUE ESTA URL SEA EXACTAMENTE LA DE TU RENDER
+const API = "https://analisis-y-diseno-de-sistemas-ll.onrender.com";
 
-// Registro de usuarios
 async function registrar() {
     const email = document.getElementById("reg_email").value;
     const password = document.getElementById("reg_password").value;
+    const msg = document.getElementById("msg");
+
+    if (!email || !password) return alert("Completa todos los campos");
 
     try {
         const res = await fetch(`${API}/registro`, {
@@ -14,16 +17,16 @@ async function registrar() {
 
         const data = await res.json();
         if (res.ok) {
-            alert("¡Registro exitoso! Ya puedes iniciar sesión.");
+            alert("Usuario registrado correctamente");
         } else {
-            alert("Error: " + data.detail);
+            alert("Error: " + (data.detail || "No se pudo registrar"));
         }
     } catch (error) {
-        mostrarMensaje("Error de conexión con el servidor");
+        console.error(error);
+        msg.innerText = "Error: No se pudo conectar con el backend. Revisa la URL.";
     }
 }
 
-// Login
 async function login() {
     const email = document.getElementById("login_email").value;
     const password = document.getElementById("login_password").value;
@@ -37,24 +40,24 @@ async function login() {
 
         const data = await res.json();
         if (res.ok) {
-            document.getElementById("auth-section").style.display = "none";
-            document.getElementById("dashboard-section").style.display = "block";
-            listarDenuncias();
+            alert("Login correcto");
+            // Ocultar login y mostrar dashboard
+            document.getElementById("auth-container").style.display = "none";
+            document.getElementById("dashboard").style.display = "block";
+            cargarDenuncias();
         } else {
             alert("Error: " + data.detail);
         }
     } catch (error) {
-        mostrarMensaje("Error al intentar ingresar");
+        console.error(error);
+        document.getElementById("msg").innerText = "Error de conexión. ¿El backend está despierto?";
     }
 }
 
-// Crear Denuncia
 async function crearDenuncia() {
     const nombre = document.getElementById("den_nombre").value;
     const ci = document.getElementById("den_ci").value;
     const descripcion = document.getElementById("den_desc").value;
-
-    if (!nombre || !ci || !descripcion) return alert("Llena todos los campos");
 
     try {
         const res = await fetch(`${API}/denuncias`, {
@@ -62,47 +65,23 @@ async function crearDenuncia() {
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ nombre, ci, descripcion })
         });
-
         if (res.ok) {
             alert("Denuncia enviada");
-            listarDenuncias();
-            // Limpiar campos
-            document.getElementById("den_nombre").value = "";
-            document.getElementById("den_ci").value = "";
-            document.getElementById("den_desc").value = "";
+            cargarDenuncias();
         }
     } catch (error) {
         alert("Error al enviar denuncia");
     }
 }
 
-// Listar Denuncias
-async function listarDenuncias() {
+async function cargarDenuncias() {
     try {
         const res = await fetch(`${API}/denuncias`);
         const data = await res.json();
-        
-        const tabla = document.getElementById("tabla_denuncias");
+        const tabla = document.getElementById("cuerpo_tabla");
         tabla.innerHTML = "";
-
         data.forEach(d => {
-            // El backend devuelve una lista de listas: [id, nombre, ci, desc]
-            const fila = `<tr>
-                <td>${d[1]}</td>
-                <td>${d[2]}</td>
-                <td>${d[3]}</td>
-            </tr>`;
-            tabla.innerHTML += fila;
+            tabla.innerHTML += `<tr><td>${d[1]}</td><td>${d[2]}</td><td>${d[3]}</td></tr>`;
         });
-    } catch (error) {
-        console.error("Error al obtener denuncias", error);
-    }
-}
-
-function cerrarSesion() {
-    location.reload();
-}
-
-function mostrarMensaje(m) {
-    document.getElementById("msg").innerText = m;
+    } catch (e) { console.error(e); }
 }

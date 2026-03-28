@@ -1,33 +1,62 @@
-body{
-    font-family: Arial;
-    background:#f4f6f9;
-    padding:20px;
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+    font-family: 'Segoe UI', sans-serif;
+    background-color: #f0f2f5;
+    color: #333;
+    padding: 20px;
 }
 
-h1{
-    color:#1e3a8a;
+.main-container {
+    max-width: 1000px;
+    margin: 0 auto;
 }
 
-input, textarea, button{
-    display:block;
-    margin:8px 0;
-    padding:10px;
-    width:250px;
+h1 { text-align: center; color: #1e3a8a; margin-bottom: 30px; }
+h2 { margin-bottom: 15px; font-size: 1.2rem; color: #444; }
+
+.card {
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    margin-bottom: 20px;
 }
 
-button{
-    background:#1e3a8a;
-    color:white;
-    border:none;
-    cursor:pointer;
+input, textarea {
+    width: 100%;
+    padding: 12px;
+    margin-bottom: 10px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    font-size: 1rem;
 }
 
-button:hover{
-    background:#3749b5;
+button {
+    width: 100%;
+    padding: 12px;
+    background: #1e3a8a;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: 0.3s;
 }
 
-table{
-    margin-top:10px;
-    background:white;
-    width:300px;
+button:hover { background: #3b82f6; }
+.btn-alt { background: #64748b; }
+
+/* Grid responsivo: 1 columna en móvil, 2 en PC */
+.grid-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 20px;
 }
+
+/* Tabla responsiva */
+.table-wrapper { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+th, td { padding: 12px; border-bottom: 1px solid #eee; text-align: left; }
+th { background: #f8fafc; color: #1e3a8a; }
+
+.error-msg { text-align: center; color: #dc2626; margin-top: 20px; font-weight: bold; }
