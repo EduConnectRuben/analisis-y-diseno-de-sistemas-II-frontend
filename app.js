@@ -1,12 +1,10 @@
-// ASEGÚRATE DE QUE ESTA URL SEA EXACTAMENTE LA DE TU RENDER
-const API = "https://analisis-y-diseno-de-sistemas-ll.onrender.com";
+// ⚠️ IMPORTANTE: Esta URL NO es la de la base de datos. 
+// Es la URL de tu Web Service en Render.
+const API = "https://analisis-y-diseno-de-sistemas-ii.onrender.com"; 
 
 async function registrar() {
     const email = document.getElementById("reg_email").value;
     const password = document.getElementById("reg_password").value;
-    const msg = document.getElementById("msg");
-
-    if (!email || !password) return alert("Completa todos los campos");
 
     try {
         const res = await fetch(`${API}/registro`, {
@@ -16,14 +14,10 @@ async function registrar() {
         });
 
         const data = await res.json();
-        if (res.ok) {
-            alert("Usuario registrado correctamente");
-        } else {
-            alert("Error: " + (data.detail || "No se pudo registrar"));
-        }
+        if (res.ok) alert("Usuario registrado");
+        else alert("Error: " + data.detail);
     } catch (error) {
-        console.error(error);
-        msg.innerText = "Error: No se pudo conectar con el backend. Revisa la URL.";
+        document.getElementById("msg").innerText = "No se pudo conectar con el servidor. Verifica la URL en app.js";
     }
 }
 
@@ -38,50 +32,15 @@ async function login() {
             body: JSON.stringify({ email, password })
         });
 
-        const data = await res.json();
         if (res.ok) {
             alert("Login correcto");
-            // Ocultar login y mostrar dashboard
-            document.getElementById("auth-container").style.display = "none";
+            document.getElementById("auth-section").style.display = "none";
             document.getElementById("dashboard").style.display = "block";
-            cargarDenuncias();
         } else {
+            const data = await res.json();
             alert("Error: " + data.detail);
         }
     } catch (error) {
-        console.error(error);
-        document.getElementById("msg").innerText = "Error de conexión. ¿El backend está despierto?";
+        alert("Error de conexión");
     }
-}
-
-async function crearDenuncia() {
-    const nombre = document.getElementById("den_nombre").value;
-    const ci = document.getElementById("den_ci").value;
-    const descripcion = document.getElementById("den_desc").value;
-
-    try {
-        const res = await fetch(`${API}/denuncias`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ nombre, ci, descripcion })
-        });
-        if (res.ok) {
-            alert("Denuncia enviada");
-            cargarDenuncias();
-        }
-    } catch (error) {
-        alert("Error al enviar denuncia");
-    }
-}
-
-async function cargarDenuncias() {
-    try {
-        const res = await fetch(`${API}/denuncias`);
-        const data = await res.json();
-        const tabla = document.getElementById("cuerpo_tabla");
-        tabla.innerHTML = "";
-        data.forEach(d => {
-            tabla.innerHTML += `<tr><td>${d[1]}</td><td>${d[2]}</td><td>${d[3]}</td></tr>`;
-        });
-    } catch (e) { console.error(e); }
 }
