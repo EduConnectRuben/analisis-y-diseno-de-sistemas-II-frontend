@@ -1,4 +1,5 @@
-// HE CORREGIDO LA URL: Ahora usa "ll" (ele ele) en lugar de "ii"
+// 1. MIRA TUS PESTAÑAS DE CHROME: La pestaña 7 (analisis-y-diseno-...)
+// tiene la URL real. Cópiala y pégala aquí ABAJO:
 const API = "https://analisis-y-diseno-de-sistemas-ll.onrender.com";
 
 async function registrar() {
@@ -6,52 +7,29 @@ async function registrar() {
     const password = document.getElementById("reg_password").value;
     const msg = document.getElementById("msg");
 
-    if (!email || !password) {
-        alert("Por favor llena todos los campos");
-        return;
-    }
+    if (!email || !password) return alert("Llena los campos");
 
     try {
-        msg.innerText = "Conectando con el servidor..."; // Feedback visual
+        console.log("Intentando conectar a:", `${API}/registro`); // Esto saldrá en F12
+        
         const res = await fetch(`${API}/registro`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ email: email, password: password })
+            body: JSON.stringify({ email, password })
         });
 
         const data = await res.json();
+        console.log("Respuesta del servidor:", data);
+
         if (res.ok) {
-            alert("¡Usuario registrado con éxito!");
-            msg.innerText = "";
+            alert("¡Registrado correctamente!");
         } else {
-            alert("Error: " + (data.detail || "No se pudo registrar"));
-            msg.innerText = "";
+            alert("Error del servidor: " + data.detail);
         }
     } catch (error) {
-        console.error("Error completo:", error);
-        msg.innerHTML = "Error: No se pudo conectar.<br>1. Revisa que la URL en app.js sea igual a la de Render.<br>2. Espera 1 minuto a que Render 'despierte'.";
+        console.error("ERROR DE CONEXIÓN:", error);
+        msg.innerHTML = "Error de conexión. <br> Posibles causas: <br> 1. El servidor de Render está dormido (espera 1 min). <br> 2. La URL en app.js no es la correcta. <br> 3. CORS está bloqueando la petición.";
     }
 }
 
-async function login() {
-    const email = document.getElementById("login_email").value;
-    const password = document.getElementById("login_password").value;
-
-    try {
-        const res = await fetch(`${API}/login`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ email: email, password: password })
-        });
-
-        if (res.ok) {
-            alert("¡Login correcto!");
-            // Aquí puedes redirigir o mostrar contenido
-        } else {
-            const data = await res.json();
-            alert("Error: " + data.detail);
-        }
-    } catch (error) {
-        alert("Error de conexión al intentar entrar.");
-    }
-}
+// Copia la función de login igual si quieres, pero prueba registro primero.
