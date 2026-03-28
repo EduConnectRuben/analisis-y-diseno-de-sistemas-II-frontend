@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>PD8 Sistema</title>
+<link rel="stylesheet" href="style.css">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+
+<body>
+
+<h1>Sistema PD8</h1>
+
+<div id="login">
+<h2>Login</h2>
+<input id="email" placeholder="Email">
+<input id="password" type="password" placeholder="Password">
+<button onclick="login()">Ingresar</button>
+</div>
+
+<div id="panel" style="display:none;">
+
+<h2>Registrar denuncia</h2>
+<input id="nombre" placeholder="Nombre">
+<input id="ci" placeholder="CI">
+<textarea id="desc"></textarea>
+<button onclick="guardar()">Guardar</button>
+
+<h2>Buscar</h2>
+<input id="buscar">
+<button onclick="filtrar()">Buscar</button>
+
+<table border="1">
+<tbody id="tabla"></tbody>
+</table>
+
+<h2>Dashboard</h2>
+<canvas id="grafico"></canvas>
+
+</div>
+
+<script src="app.js"></script>
+
+</body>
+</html>
