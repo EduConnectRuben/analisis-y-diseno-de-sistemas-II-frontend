@@ -1,28 +1,29 @@
+// Verifica que sea -ll (ele-ele) como en tu pestaña de Netlify
 const API = "https://analisis-y-diseno-de-sistemas-ll.onrender.com";
 
 async function registrar() {
     const email = document.getElementById("reg_email").value;
     const password = document.getElementById("reg_password").value;
-    const msg = document.getElementById("msg");
 
-    if (!email || !password) return alert("Llena los campos");
+    if (!email || !password) return alert("Escribe un correo y contraseña");
 
     try {
         const res = await fetch(`${API}/registro`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ email, password })
+            body: JSON.stringify({ email: email, password: password })
         });
 
         const data = await res.json();
+
         if (res.ok) {
-            alert("Usuario registrado correctamente");
-            msg.innerText = "";
+            alert("¡Usuario registrado con éxito!");
         } else {
             alert("Error: " + data.detail);
         }
     } catch (error) {
-        msg.innerText = "Error de conexión. Revisa que el servidor de Render esté activo.";
+        console.error("Error detectado:", error);
+        alert("Error de conexión. Asegúrate de que el servidor de Render ya cargó.");
     }
 }
 
@@ -34,16 +35,16 @@ async function login() {
         const res = await fetch(`${API}/login`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ email, password })
+            body: JSON.stringify({ email: email, password: password })
         });
 
         const data = await res.json();
         if (res.ok) {
-            alert("¡Bienvenido al sistema!");
+            alert("¡Bienvenido!");
         } else {
             alert("Error: " + data.detail);
         }
     } catch (error) {
-        alert("Error al conectar");
+        alert("Error de conexión");
     }
 }
