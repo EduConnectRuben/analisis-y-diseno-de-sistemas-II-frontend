@@ -1,7 +1,37 @@
 const API = "https://analisis-y-diseno-de-sistemas-2-backend.onrender.com";
 
+async function registrar() {
+    const emailInput = document.getElementById("reg_email");
+    const passwordInput = document.getElementById("reg_password");
+    
+    // CORRECCIÓN: toLowerCase() en lugar de lower()
+    const email = emailInput.value.trim().toLowerCase();
+    const password = passwordInput.value;
+
+    if (!email || !password) return alert("Por favor, llena todos los campos");
+
+    try {
+        const res = await fetch(`${API}/registro`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ email, password })
+        });
+
+        const data = await res.json();
+        if (res.ok) {
+            alert("¡Usuario registrado con éxito! Ahora puedes ingresar.");
+            emailInput.value = "";
+            passwordInput.value = "";
+        } else {
+            alert("Error: " + data.detail);
+        }
+    } catch (error) {
+        alert("Error de conexión con el servidor");
+    }
+}
+
 async function login() {
-    const email = document.getElementById("login_email").value.trim().lower();
+    const email = document.getElementById("login_email").value.trim().toLowerCase();
     const password = document.getElementById("login_password").value;
 
     try {
@@ -14,12 +44,10 @@ async function login() {
         const data = await res.json();
         if (res.ok) {
             alert("¡LOGIN EXITOSO! Bienvenido.");
-            
-            // ESTO ES LO QUE HACE QUE "ENTRE":
+            // Cambiar de vista
             document.getElementById("auth-section").style.display = "none";
             document.getElementById("dashboard-section").style.display = "block";
-            
-            listarDenuncias(); // Carga las denuncias existentes
+            listarDenuncias();
         } else {
             alert("Error: " + data.detail);
         }
@@ -28,24 +56,12 @@ async function login() {
     }
 }
 
-async function registrar() {
-    const email = document.getElementById("reg_email").value.trim().lower();
-    const password = document.getElementById("reg_password").value;
-    try {
-        const res = await fetch(`${API}/registro`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ email, password })
-        });
-        if (res.ok) alert("Registrado. Ahora haz login.");
-        else alert("El usuario ya existe.");
-    } catch (e) { alert("Error"); }
-}
-
 async function crearDenuncia() {
     const nombre = document.getElementById("den_nombre").value;
     const ci = document.getElementById("den_ci").value;
     const descripcion = document.getElementById("den_desc").value;
+
+    if (!nombre || !ci || !descripcion) return alert("Llena todos los datos de la denuncia");
 
     try {
         const res = await fetch(`${API}/denuncias`, {
@@ -54,14 +70,13 @@ async function crearDenuncia() {
             body: JSON.stringify({ nombre, ci, descripcion })
         });
         if (res.ok) {
-            alert("Denuncia enviada");
+            alert("Denuncia enviada correctamente");
             listarDenuncias();
-            // Limpiar campos
             document.getElementById("den_nombre").value = "";
             document.getElementById("den_ci").value = "";
             document.getElementById("den_desc").value = "";
         }
-    } catch (e) { alert("Error al enviar"); }
+    } catch (e) { alert("Error al enviar denuncia"); }
 }
 
 async function listarDenuncias() {
@@ -71,16 +86,16 @@ async function listarDenuncias() {
         const tbody = document.getElementById("lista_denuncias");
         tbody.innerHTML = "";
         datos.forEach(d => {
-            // El backend devuelve: [id, nombre, ci, descripcion]
-            tbody.innerHTML += `<tr>
-                <td style="border:1px solid #ddd; padding:8px;">${d[1]}</td>
-                <td style="border:1px solid #ddd; padding:8px;">${d[2]}</td>
-                <td style="border:1px solid #ddd; padding:8px;">${d[3]}</td>
-            </tr>`;
+            tbody.innerHTML += `
+                <tr>
+                    <td>${d[1]}</td>
+                    <td>${d[2]}</td>
+                    <td>${d[3]}</td>
+                </tr>`;
         });
-    } catch (e) { console.error(e); }
+    } catch (e) { console.error("Error al listar:", e); }
 }
 
 function cerrarSesion() {
-    location.reload(); // Recarga la página para volver al login
+    location.reload();
 }

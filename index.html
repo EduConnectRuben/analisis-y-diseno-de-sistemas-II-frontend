@@ -8,43 +8,42 @@
 </head>
 <body>
 
-<div class="container">
-    <h1>Sistema PD8</h1>
+<div class="main-wrapper">
+    <h1>Sistema de Denuncias PD8</h1>
 
-    <!-- SECCIÓN DE LOGIN Y REGISTRO -->
-    <div id="auth-section">
+    <!-- LOGIN Y REGISTRO -->
+    <div id="auth-section" class="grid-layout">
         <div class="card">
             <h2>Ingresar</h2>
-            <input id="login_email" placeholder="Email">
-            <input id="login_password" type="password" placeholder="Password">
-            <button onclick="login()">Ingresar</button>
+            <input id="login_email" type="email" placeholder="Correo electrónico">
+            <input id="login_password" type="password" placeholder="Contraseña">
+            <button onclick="login()">Entrar al Sistema</button>
         </div>
 
         <div class="card">
-            <h2>Registro</h2>
-            <input id="reg_email" placeholder="Email">
-            <input id="reg_password" type="password" placeholder="Password">
-            <button onclick="registrar()" style="background:#444">Registrarse</button>
+            <h2>Crear Cuenta</h2>
+            <input id="reg_email" type="email" placeholder="Correo electrónico">
+            <input id="reg_password" type="password" placeholder="Contraseña">
+            <button onclick="registrar()" class="btn-secondary">Registrarse</button>
         </div>
     </div>
 
-    <!-- SECCIÓN DEL DASHBOARD (Se muestra tras el login) -->
+    <!-- DASHBOARD -->
     <div id="dashboard-section" style="display:none;">
         <div class="card">
-            <h2>Panel de Denuncias</h2>
-            <p>Bienvenido al sistema. Use el formulario para denunciar.</p>
-            <input id="den_nombre" placeholder="Nombre completo">
-            <input id="den_ci" placeholder="CI / Cédula">
-            <textarea id="den_desc" placeholder="Descripción de la denuncia" style="width:100%; padding:10px; margin-bottom:10px; border-radius:5px; border:1px solid #ccc;"></textarea>
+            <h2>Registrar Nueva Denuncia</h2>
+            <input id="den_nombre" placeholder="Nombre del denunciante">
+            <input id="den_ci" placeholder="Cédula de Identidad (CI)">
+            <textarea id="den_desc" placeholder="Detalles de la denuncia..."></textarea>
             <button onclick="crearDenuncia()">Enviar Denuncia</button>
-            <button onclick="cerrarSesion()" style="background:#991b1b; margin-top:10px;">Cerrar Sesión</button>
+            <button onclick="cerrarSesion()" class="btn-danger">Cerrar Sesión</button>
         </div>
 
-        <div class="card">
-            <h2>Lista de Denuncias</h2>
-            <table id="tabla-denuncias" style="width:100%; border-collapse:collapse;">
+        <div class="card overflow-x">
+            <h2>Historial de Denuncias</h2>
+            <table>
                 <thead>
-                    <tr style="background:#eee">
+                    <tr>
                         <th>Nombre</th>
                         <th>CI</th>
                         <th>Descripción</th>
@@ -54,8 +53,6 @@
             </table>
         </div>
     </div>
-
-    <p id="msg" style="text-align:center; color:red;"></p>
 </div>
 
 <script src="app.js"></script>
