@@ -16,13 +16,34 @@ async function registrar() {
 
         const data = await res.json();
         if (res.ok) {
-            alert("¡Usuario registrado con éxito!");
+            alert("Usuario registrado correctamente");
+            msg.innerText = "";
         } else {
             alert("Error: " + data.detail);
         }
     } catch (error) {
-        console.error("Error:", error);
-        msg.innerText = "Error de conexión con el servidor.";
+        msg.innerText = "Error de conexión. Revisa que el servidor de Render esté activo.";
     }
 }
-// ... la función de login es igual, solo cambia el final de la URL a /login
+
+async function login() {
+    const email = document.getElementById("login_email").value;
+    const password = document.getElementById("login_password").value;
+
+    try {
+        const res = await fetch(`${API}/login`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ email, password })
+        });
+
+        const data = await res.json();
+        if (res.ok) {
+            alert("¡Bienvenido al sistema!");
+        } else {
+            alert("Error: " + data.detail);
+        }
+    } catch (error) {
+        alert("Error al conectar");
+    }
+}
