@@ -3,55 +3,75 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sistema PD8</title>
+    <title>SISTEMA PD-8 - CONTROL POLICIAL</title>
     <link rel="stylesheet" href="style.css">
+    <!-- Librería para generar PDF -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 </head>
 <body>
 
-<div class="main-wrapper">
-    <h1>Sistema de Denuncias PD8</h1>
+<div class="container">
+    <header>
+        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/c/cf/Escudo_de_la_Polic%C3%ADa_Nacional_de_Bolivia.svg/1200px-Escudo_de_la_Polic%C3%ADa_Nacional_de_Bolivia.svg.png" width="50">
+        <h1>POLICÍA NACIONAL - DISTRITO 8</h1>
+    </header>
 
-    <!-- LOGIN Y REGISTRO -->
-    <div id="auth-section" class="grid-layout">
+    <!-- ACCESO -->
+    <div id="auth-section">
         <div class="card">
-            <h2>Ingresar</h2>
-            <input id="login_email" type="email" placeholder="Correo electrónico">
+            <h2>Acceso al Sistema</h2>
+            <input id="login_email" placeholder="Correo del Oficial">
             <input id="login_password" type="password" placeholder="Contraseña">
-            <button onclick="login()">Entrar al Sistema</button>
+            <button onclick="login()">Ingresar</button>
+            <p onclick="mostrarRegistro()" style="cursor:pointer; font-size:12px; text-align:center;">¿Nuevo oficial? Regístrese aquí</p>
         </div>
-
-        <div class="card">
-            <h2>Crear Cuenta</h2>
-            <input id="reg_email" type="email" placeholder="Correo electrónico">
+        
+        <div id="reg-card" class="card" style="display:none;">
+            <h2>Registro de Nuevo Oficial</h2>
+            <input id="reg_email" placeholder="Correo Institucional">
             <input id="reg_password" type="password" placeholder="Contraseña">
-            <button onclick="registrar()" class="btn-secondary">Registrarse</button>
+            <button onclick="registrar()" class="btn-alt">Crear Cuenta</button>
         </div>
     </div>
 
-    <!-- DASHBOARD -->
-    <div id="dashboard-section" style="display:none;">
-        <div class="card">
-            <h2>Registrar Nueva Denuncia</h2>
-            <input id="den_nombre" placeholder="Nombre del denunciante">
-            <input id="den_ci" placeholder="Cédula de Identidad (CI)">
-            <textarea id="den_desc" placeholder="Detalles de la denuncia..."></textarea>
-            <button onclick="crearDenuncia()">Enviar Denuncia</button>
-            <button onclick="cerrarSesion()" class="btn-danger">Cerrar Sesión</button>
+    <!-- SISTEMA PRINCIPAL -->
+    <div id="dashboard" style="display:none;">
+        <div class="grid">
+            <!-- FORMULARIO DENUNCIA -->
+            <div class="card">
+                <h3><span class="badge">Sargento</span> Registro de Denuncia</h3>
+                <input id="den_nombre" placeholder="Nombre Denunciado/Víctima">
+                <input id="den_ci" placeholder="CI">
+                <textarea id="den_desc" placeholder="Descripción de los hechos"></textarea>
+                <button onclick="enviarDenuncia()">Registrar Caso</button>
+            </div>
+
+            <!-- BUSCADOR -->
+            <div class="card">
+                <h3>Buscador Rápido</h3>
+                <input id="search_ci" placeholder="Ingrese CI para buscar...">
+                <button onclick="buscarCI()" class="btn-alt">Buscar</button>
+                <button onclick="listarDenuncias()" class="btn-alt" style="background:#64748b">Ver Todos</button>
+            </div>
         </div>
 
-        <div class="card overflow-x">
-            <h2>Historial de Denuncias</h2>
+        <!-- LISTADO -->
+        <div class="card table-container">
+            <h3><span class="badge" style="background:#b91c1c">Fiscalía</span> Gestión de Casos</h3>
             <table>
                 <thead>
                     <tr>
-                        <th>Nombre</th>
+                        <th>ID</th>
+                        <th>Sujeto</th>
                         <th>CI</th>
-                        <th>Descripción</th>
+                        <th>Acciones</th>
                     </tr>
                 </thead>
-                <tbody id="lista_denuncias"></tbody>
+                <tbody id="tabla_casos"></tbody>
             </table>
         </div>
+        
+        <button onclick="location.reload()" class="btn-danger">Cerrar Sesión</button>
     </div>
 </div>
 
