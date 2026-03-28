@@ -2,7 +2,7 @@ let token="";
 let datos=[];
 
 // 🔥 CAMBIA POR TU BACKEND REAL DE RENDER
-const API = "const API = "https://analisis-y-design-de-sistemas-ii.onrender.com";
+const API = "const API = "https://analisis-y-diseno-de-sistemas-ii.onrender.com";
 
 // LOGIN
 async function login(){
