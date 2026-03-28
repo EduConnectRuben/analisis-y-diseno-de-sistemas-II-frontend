@@ -1,96 +1,27 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <title>Sistema PD8</title>
-    <style>
-        body {
-            font-family: Arial;
-            margin: 40px;
-        }
-        input {
-            display: block;
-            margin: 10px 0;
-            padding: 8px;
-            width: 250px;
-        }
-        button {
-            padding: 10px;
-            background: #2c3e90;
-            color: white;
-            border: none;
-            width: 270px;
-            cursor: pointer;
-        }
-    </style>
+<meta charset="UTF-8">
+<title>Sistema PD8</title>
 </head>
+
 <body>
 
-    <h1>Sistema PD8</h1>
+<h1>Sistema PD8</h1>
 
-    <!-- LOGIN -->
-    <h2>Login</h2>
-    <input type="email" id="login_email" placeholder="Email">
-    <input type="password" id="login_password" placeholder="Password">
-    <button onclick="login()">Ingresar</button>
+<h2>Login</h2>
+<input id="login_email" placeholder="Email"><br><br>
+<input id="login_password" type="password" placeholder="Password"><br><br>
+<button onclick="login()">Ingresar</button>
 
-    <!-- REGISTRO -->
-    <h2>Registro</h2>
-    <input type="email" id="reg_email" placeholder="Email">
-    <input type="password" id="reg_password" placeholder="Password">
-    <button onclick="registro()">Registrarse</button>
+<h2>Registro</h2>
+<input id="reg_email" placeholder="Email"><br><br>
+<input id="reg_password" type="password" placeholder="Password"><br><br>
+<button onclick="registrar()">Registrarse</button>
 
-    <p id="mensaje"></p>
+<p id="msg"></p>
 
-<script>
-
-const API = "https://analisis-y-diseno-de-sistemas-ii.onrender.com";
-
-// REGISTRO
-async function registro() {
-    const email = document.getElementById("reg_email").value;
-    const password = document.getElementById("reg_password").value;
-
-    try {
-        const res = await fetch(API + "/registro", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify({ email, password })
-        });
-
-        const data = await res.json();
-        document.getElementById("mensaje").innerText = JSON.stringify(data);
-
-    } catch (error) {
-        document.getElementById("mensaje").innerText = "Error conexión backend";
-    }
-}
-
-// LOGIN
-async function login() {
-    const email = document.getElementById("login_email").value;
-    const password = document.getElementById("login_password").value;
-
-    try {
-        const res = await fetch(API + "/login", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify({ email, password })
-        });
-
-        const data = await res.json();
-        document.getElementById("mensaje").innerText = JSON.stringify(data);
-
-    } catch (error) {
-        document.getElementById("mensaje").innerText = "Error conexión backend";
-    }
-}
-
-</script>
+<script src="script.js"></script>
 
 </body>
 </html>
