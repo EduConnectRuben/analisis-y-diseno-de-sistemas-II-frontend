@@ -1,23 +1,35 @@
-// ⚠️ IMPORTANTE: Esta URL NO es la de la base de datos. 
-// Es la URL de tu Web Service en Render.
-const API = "https://analisis-y-diseno-de-sistemas-ii.onrender.com"; 
+// HE CORREGIDO LA URL: Ahora usa "ll" (ele ele) en lugar de "ii"
+const API = "https://analisis-y-diseno-de-sistemas-ll.onrender.com";
 
 async function registrar() {
     const email = document.getElementById("reg_email").value;
     const password = document.getElementById("reg_password").value;
+    const msg = document.getElementById("msg");
+
+    if (!email || !password) {
+        alert("Por favor llena todos los campos");
+        return;
+    }
 
     try {
+        msg.innerText = "Conectando con el servidor..."; // Feedback visual
         const res = await fetch(`${API}/registro`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ email, password })
+            body: JSON.stringify({ email: email, password: password })
         });
 
         const data = await res.json();
-        if (res.ok) alert("Usuario registrado");
-        else alert("Error: " + data.detail);
+        if (res.ok) {
+            alert("¡Usuario registrado con éxito!");
+            msg.innerText = "";
+        } else {
+            alert("Error: " + (data.detail || "No se pudo registrar"));
+            msg.innerText = "";
+        }
     } catch (error) {
-        document.getElementById("msg").innerText = "No se pudo conectar con el servidor. Verifica la URL en app.js";
+        console.error("Error completo:", error);
+        msg.innerHTML = "Error: No se pudo conectar.<br>1. Revisa que la URL en app.js sea igual a la de Render.<br>2. Espera 1 minuto a que Render 'despierte'.";
     }
 }
 
@@ -29,18 +41,17 @@ async function login() {
         const res = await fetch(`${API}/login`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ email, password })
+            body: JSON.stringify({ email: email, password: password })
         });
 
         if (res.ok) {
-            alert("Login correcto");
-            document.getElementById("auth-section").style.display = "none";
-            document.getElementById("dashboard").style.display = "block";
+            alert("¡Login correcto!");
+            // Aquí puedes redirigir o mostrar contenido
         } else {
             const data = await res.json();
             alert("Error: " + data.detail);
         }
     } catch (error) {
-        alert("Error de conexión");
+        alert("Error de conexión al intentar entrar.");
     }
 }
