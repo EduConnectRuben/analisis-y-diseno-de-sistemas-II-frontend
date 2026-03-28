@@ -3,55 +3,44 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SISTEMA POLICIAL PD-8</title>
+    <title>SISTEMA POLICIAL PD8</title>
     <link rel="stylesheet" href="style.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 </head>
 <body>
+    <div class="container">
+        <h1>POLICÍA NACIONAL - DISTRITO 8</h1>
+        
+        <div id="auth-section">
+            <div class="card">
+                <h2>Ingreso de Oficiales</h2>
+                <input id="login_email" placeholder="Email">
+                <input id="login_password" type="password" placeholder="Clave">
+                <button onclick="login()">Ingresar</button>
+                <hr>
+                <input id="reg_email" placeholder="Nuevo Email">
+                <input id="reg_password" type="password" placeholder="Nueva Clave">
+                <button onclick="registrar()" style="background: #444">Registrar Nuevo Oficial</button>
+            </div>
+        </div>
 
-<div class="main">
-    <header>
-        <h1>DISTRITO POLICIAL N° 8</h1>
-    </header>
-
-    <!-- LOGIN -->
-    <div id="auth-section">
-        <div class="card">
-            <h2>Acceso de Oficiales</h2>
-            <input id="login_email" placeholder="Email institucional">
-            <input id="login_password" type="password" placeholder="Contraseña">
-            <button onclick="login()">Ingresar</button>
-            <hr>
-            <h3>Registrar Nuevo Oficial</h3>
-            <input id="reg_email" placeholder="Nuevo Email">
-            <input id="reg_password" type="password" placeholder="Nueva Contraseña">
-            <button onclick="registrar()" style="background:#444">Registrar Oficial</button>
+        <div id="dashboard" style="display:none;">
+            <div class="card">
+                <h2>Registrar Denuncia</h2>
+                <input id="den_nombre" placeholder="Nombre Sujeto">
+                <input id="den_ci" placeholder="C.I.">
+                <textarea id="den_desc" placeholder="Descripción del hecho"></textarea>
+                <button onclick="crearDenuncia()">Guardar Caso</button>
+            </div>
+            <div class="card">
+                <h2>Lista de Casos</h2>
+                <table>
+                    <thead><tr><th>Nombre</th><th>CI</th><th>Acción</th></tr></thead>
+                    <tbody id="tabla_denuncias"></tbody>
+                </table>
+            </div>
         </div>
     </div>
-
-    <!-- DASHBOARD -->
-    <div id="dashboard-section" style="display:none;">
-        <div class="card">
-            <h2>Registrar Denuncia (Sargento)</h2>
-            <input id="den_nombre" placeholder="Nombre Denunciado">
-            <input id="den_ci" placeholder="Cédula de Identidad">
-            <textarea id="den_desc" placeholder="Descripción del Delito"></textarea>
-            <button onclick="crearDenuncia()">Guardar Denuncia</button>
-        </div>
-
-        <div class="card">
-            <h2>Gestión de Casos (Fiscalía)</h2>
-            <table>
-                <thead>
-                    <tr><th>Nombre</th><th>CI</th><th>Acciones</th></tr>
-                </thead>
-                <tbody id="lista_denuncias"></tbody>
-            </table>
-            <button onclick="location.reload()" style="background:red; margin-top:20px;">Cerrar Sesión</button>
-        </div>
-    </div>
-</div>
-
-<script src="app.js"></script>
+    <script src="app.js"></script>
 </body>
 </html>
