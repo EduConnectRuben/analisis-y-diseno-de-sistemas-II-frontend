@@ -1,36 +1,19 @@
-:root {
-    --police: #1e3a8a;
-    --danger: #b91c1c;
-    --gold: #854d0e;
-    --bg: #f1f5f9;
-}
-
-body { font-family: 'Segoe UI', sans-serif; background: #94a3b8; margin: 0; padding: 20px; }
-.main-container { max-width: 850px; margin: 0 auto; }
-header { text-align: center; margin-bottom: 25px; }
-header h1 { color: #1e3a8a; text-shadow: 1px 1px white; margin: 0; }
-.shadow { box-shadow: 0 10px 25px rgba(0,0,0,0.3); }
-
-.card { background: white; padding: 30px; border-radius: 15px; margin-bottom: 25px; }
-.user-info { display: flex; justify-content: space-between; margin-bottom: 10px; font-weight: bold; color: white; }
-
-input, textarea { width: 100%; padding: 12px; margin: 8px 0; border: 2px solid #ccc; border-radius: 8px; box-sizing: border-box; font-size: 1rem; }
-button { width: 100%; padding: 15px; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; transition: 0.3s; color: white; }
-.btn-primary { background: var(--police); }
+body { font-family: sans-serif; background: #cbd5e1; margin: 0; padding: 20px; }
+.main-container { max-width: 800px; margin: 0 auto; }
+.card { background: white; padding: 25px; border-radius: 12px; box-shadow: 0 10px 15px rgba(0,0,0,0.2); margin-bottom: 20px; }
+input, textarea { width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #ccc; border-radius: 6px; box-sizing: border-box; }
+button { width: 100%; padding: 14px; background: #1e3a8a; color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; }
+.btn-primary { background: #1e3a8a; }
 .btn-secondary { background: #475569; }
-.btn-danger { background: var(--danger); }
-button:hover { opacity: 0.9; transform: scale(1.01); }
-
-.badge { display: inline-block; padding: 5px 12px; border-radius: 5px; font-size: 11px; color: white; background: #334155; }
-.red { background: var(--danger); }
-.blue { background: #2563eb; }
-.gold { background: var(--gold); }
-
-table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+.btn-danger { background: #b91c1c; }
+.btn-success { background: #059669; }
+.btn-sm { width: auto; font-size: 11px; padding: 6px; margin: 2px; }
+.badge { display: inline-block; padding: 4px 10px; border-radius: 4px; font-size: 11px; color: white; }
+.red { background: #b91c1c; }
+.blue { background: #1e40af; }
+.gold { background: #854d0e; }
+.warning { background: #fffbeb; border-left: 10px solid #f59e0b; }
+table { width: 100%; border-collapse: collapse; }
 th, td { text-align: left; padding: 12px; border-bottom: 1px solid #e2e8f0; }
-th { background: #f8fafc; color: var(--police); }
-
-.modal { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); backdrop-filter: blur(5px); }
+.modal { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.7); backdrop-filter: blur(4px); }
 .modal-content { margin: 8% auto; max-width: 450px; }
-.modal-buttons { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 15px; }
-.border-red { border-top: 8px solid var(--danger); }

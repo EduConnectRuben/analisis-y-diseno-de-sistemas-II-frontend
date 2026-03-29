@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SISTEMA POLICIAL PD-8</title>
+    <title>POLICÍA PD-8</title>
     <link rel="stylesheet" href="style.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 </head>
@@ -15,86 +15,74 @@
         <h1>DISTRITO POLICIAL N° 8</h1>
     </header>
 
-    <!-- PANTALLA DE ACCESO -->
+    <!-- LOGIN -->
     <div id="auth-section" class="card shadow">
-        <h2>Identificación de Oficial</h2>
-        <input id="login_email" type="email" placeholder="Correo Institucional">
+        <h2 style="text-align:center;">Acceso Autorizado</h2>
+        <input id="login_email" type="email" placeholder="Correo (admin/policia/fiscal)">
         <input id="login_password" type="password" placeholder="Contraseña">
-        <button class="btn-primary" onclick="login()">INGRESAR AL SISTEMA</button>
+        <button class="btn-primary" onclick="login()">INGRESAR</button>
         <hr>
-        <p style="text-align:center; font-size:12px; margin:10px 0;">¿No tiene cuenta oficial? Solicite una:</p>
-        <input id="reg_email" placeholder="Email">
-        <input id="reg_password" type="password" placeholder="Contraseña">
-        <button class="btn-secondary" onclick="registrar()">REGISTRAR SOLICITUD</button>
+        <p style="font-size:12px; text-align:center;">Registro de nuevo personal:</p>
+        <input id="reg_email" placeholder="Nuevo Correo">
+        <input id="reg_password" type="password" placeholder="Nueva Clave">
+        <button class="btn-secondary" onclick="registrar()">SOLICITAR REGISTRO</button>
     </div>
 
-    <!-- CONTENEDOR PRINCIPAL (DASHBOARD) -->
+    <!-- DASHBOARD -->
     <div id="dashboard" style="display:none;">
-        
         <div class="user-info">
-            <span id="user-display">oficial@bolivia.com</span>
-            <span id="rol-display" class="badge">PENDIENTE</span>
+            <span id="user-display"></span>
+            <span id="rol-display" class="badge"></span>
         </div>
 
-        <!-- VISTA: ACCESO LIMITADO -->
-        <div id="view-pendiente" style="display:none;" class="card shadow border-red">
-            <h2 style="color:#b91c1c">⚠️ ACCESO LIMITADO</h2>
-            <p>Su cuenta ha sido registrada pero <b>aún no tiene un cargo asignado</b>.</p>
-            <p>Por favor, contacte con el <b>Administrador</b> del Distrito para que autorice su cuenta como Policía o Fiscal.</p>
+        <!-- VISTA PENDIENTE -->
+        <div id="view-pendiente" style="display:none;" class="card shadow warning">
+            <h2>⚠️ ACCESO LIMITADO</h2>
+            <p>Espere a que el Administrador autorice su rango de Oficial.</p>
         </div>
 
-        <!-- VISTA: ADMINISTRADOR -->
+        <!-- VISTA ADMIN -->
         <div id="view-admin" style="display:none;" class="card shadow">
-            <h2 class="badge red">MODO ADMINISTRADOR</h2>
-            <h3>Oficiales Esperando Cargo</h3>
-            <div class="table-wrapper">
-                <table>
-                    <thead><tr><th>Email</th><th>Estado</th><th>Asignar Cargo</th></tr></thead>
-                    <tbody id="lista-admin"></tbody>
-                </table>
-            </div>
+            <h2 class="badge red">CONTROL DE PERSONAL</h2>
+            <table>
+                <thead><tr><th>Email</th><th>Rango</th><th>Asignar</th></tr></thead>
+                <tbody id="lista-admin"></tbody>
+            </table>
         </div>
 
-        <!-- VISTA: POLICÍA -->
+        <!-- VISTA POLICIA -->
         <div id="view-policia" style="display:none;" class="card shadow">
-            <h2 class="badge blue">MÓDULO DE DENUNCIAS (SARGENTO)</h2>
-            <input id="den_nombre" placeholder="Nombre completo del Sujeto">
-            <input id="den_ci" placeholder="Cédula de Identidad (CI)">
-            <textarea id="den_desc" placeholder="Relato detallado del hecho..."></textarea>
-            <button class="btn-primary" onclick="crearDenuncia()">GUARDAR Y DESCARGAR PDF + QR</button>
+            <h2 class="badge blue">REGISTRO DE DENUNCIAS</h2>
+            <input id="den_nombre" placeholder="Nombre Sujeto">
+            <input id="den_ci" placeholder="C.I.">
+            <textarea id="den_desc" placeholder="Relato del hecho delictivo..."></textarea>
+            <button class="btn-primary" onclick="crearDenuncia()">GUARDAR Y DESCARGAR PDF</button>
         </div>
 
-        <!-- VISTA: FISCALÍA -->
+        <!-- VISTA FISCAL -->
         <div id="view-fiscal" style="display:none;" class="card shadow">
-            <h2 class="badge gold">MÓDULO DE FISCALÍA</h2>
-            <h3>Casos para Citación</h3>
-            <div class="table-wrapper">
-                <table>
-                    <thead><tr><th>Nombre Sujeto</th><th>CI</th><th>Acción Legal</th></tr></thead>
-                    <tbody id="lista-fiscal"></tbody>
-                </table>
-            </div>
+            <h2 class="badge gold">FISCALÍA: CITACIONES</h2>
+            <table>
+                <thead><tr><th>Nombre</th><th>CI</th><th>Gestión</th></tr></thead>
+                <tbody id="lista-fiscal"></tbody>
+            </table>
         </div>
 
-        <button class="btn-danger" style="margin-top:20px;" onclick="location.reload()">CERRAR SESIÓN SEGURA</button>
+        <button class="btn-danger" style="margin-top:20px;" onclick="location.reload()">CERRAR SESIÓN</button>
     </div>
 </div>
 
-<!-- MODAL CITACION -->
+<!-- MODAL FISCAL -->
 <div id="modal-citacion" class="modal">
     <div class="modal-content card shadow">
         <h3>EMITIR ORDEN DE CITACIÓN</h3>
         <input type="hidden" id="modal_id">
-        <label>Denunciado:</label>
         <input id="modal_nombre" readonly class="readonly">
-        <label>Fecha y Hora de Cita:</label>
+        <label>Fecha y Hora:</label>
         <input type="datetime-local" id="modal_fecha">
-        <label>Fiscal de Turno:</label>
-        <input type="text" id="modal_fiscal" placeholder="Nombre del Fiscal">
-        <div class="modal-buttons">
-            <button onclick="generarCitacionPDF()" style="background:#059669">GENERAR CITACIÓN (PDF+QR)</button>
-            <button onclick="cerrarModal()" class="btn-secondary">CANCELAR</button>
-        </div>
+        <input id="modal_fiscal" placeholder="Nombre del Fiscal">
+        <button onclick="generarCitacionPDF()" class="btn-success">GENERAR PDF + QR</button>
+        <button onclick="cerrarModal()" class="btn-secondary" style="margin-top:10px;">CANCELAR</button>
     </div>
 </div>
 
