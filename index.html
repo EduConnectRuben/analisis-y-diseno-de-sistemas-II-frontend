@@ -3,84 +3,91 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SISTEMA POLICIAL PD-8</title>
+    <title>SISTEMA PD-8 - BOLIVIA</title>
     <link rel="stylesheet" href="style.css">
-    <!-- Librería para generar PDF -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 </head>
 <body>
 
 <div class="main-container">
     <header>
-        <h1>DISTRITO POLICIAL N° 8 - BOLIVIA</h1>
+        <div class="header-content">
+            <img id="escudo" src="denuncia.png" alt="Escudo" width="60">
+            <h1>DISTRITO POLICIAL N° 8<br><small>SISTEMA DE CONTROL DE DENUNCIAS</small></h1>
+        </div>
     </header>
 
-    <!-- SECCIÓN DE ACCESO -->
+    <!-- ÁREA DE ACCESO -->
     <div id="auth-section">
-        <div class="card">
-            <h2>Acceso de Oficiales</h2>
-            <input id="login_email" type="email" placeholder="Email institucional">
+        <div class="card login-card">
+            <h2>Identificación de Oficial</h2>
+            <input id="login_email" type="email" placeholder="Usuario / Correo">
             <input id="login_password" type="password" placeholder="Contraseña">
-            <button onclick="login()">Ingresar al Sistema</button>
+            <button onclick="login()">Acceder al Sistema</button>
             <hr>
-            <h3>Registrar Nuevo Oficial</h3>
-            <input id="reg_email" type="email" placeholder="Nuevo Email">
+            <p style="font-size:12px; text-align:center; margin-top:10px;">Registro de nuevos funcionarios:</p>
+            <input id="reg_email" type="email" placeholder="Nuevo Correo">
             <input id="reg_password" type="password" placeholder="Nueva Contraseña">
             <button onclick="registrar()" class="btn-secondary">Registrar Oficial</button>
         </div>
     </div>
 
-    <!-- SISTEMA DASHBOARD -->
+    <!-- SISTEMA SEGÚN RANGO -->
     <div id="dashboard" style="display:none;">
-        <div class="card">
-            <h2><span class="badge">Sargento</span> Registrar Denuncia</h2>
-            <input id="den_nombre" placeholder="Nombre completo del sujeto">
-            <input id="den_ci" placeholder="Cédula de Identidad (CI)">
-            <textarea id="den_desc" placeholder="Descripción de los hechos delictivos..."></textarea>
-            <button onclick="crearDenuncia()">Guardar Caso en Base de Datos</button>
+        
+        <!-- MÓDULO SARGENTO: REGISTRO -->
+        <div class="card module">
+            <div class="module-header">
+                <span class="badge blue">MÓDULO DE SARGENTO</span>
+                <h2>Registro de Nueva Denuncia</h2>
+            </div>
+            <div class="form-group">
+                <input id="den_nombre" placeholder="Nombre completo del Denunciado/Sujeto">
+                <input id="den_ci" placeholder="Cédula de Identidad (CI)">
+                <textarea id="den_desc" placeholder="Relato detallado de los hechos delictivos..."></textarea>
+                <button onclick="crearDenuncia()" style="background:#0f172a">Registrar y Generar Acta PDF</button>
+            </div>
         </div>
 
-        <div class="card">
-            <h2><span class="badge" style="background:red">Fiscalía</span> Lista de Casos Activos</h2>
+        <!-- MÓDULO FISCALÍA: GESTIÓN -->
+        <div class="card module">
+            <div class="module-header">
+                <span class="badge gold">MÓDULO DE FISCALÍA</span>
+                <h2>Gestión Jurídica de Casos</h2>
+            </div>
             <div class="table-wrapper">
                 <table>
                     <thead>
                         <tr>
-                            <th>Nombre</th>
+                            <th>Sujeto</th>
                             <th>CI</th>
-                            <th>Acción</th>
+                            <th>Acciones Legales</th>
                         </tr>
                     </thead>
                     <tbody id="tabla_denuncias"></tbody>
                 </table>
             </div>
-            <button onclick="location.reload()" class="btn-danger" style="margin-top:20px;">Cerrar Sesión</button>
         </div>
+        
+        <button onclick="location.reload()" class="btn-danger">Cerrar Sesión Segura</button>
     </div>
 </div>
 
-<!-- VENTANA MODAL PARA CITACIÓN PROFESIONAL -->
+<!-- MODAL PARA CITACIÓN FISCAL -->
 <div id="modal-citacion" class="modal">
     <div class="modal-content card">
-        <div class="modal-header">
-            <h3>Orden de Citación Fiscal</h3>
-            <span class="close" onclick="cerrarModal()">&times;</span>
-        </div>
-        <div class="modal-body">
-            <input type="hidden" id="modal_denuncia_id">
-            <label>Sujeto a citar:</label>
-            <input id="modal_nombre" readonly style="background:#f1f5f9;">
-            
-            <label>Seleccione Fecha y Hora:</label>
-            <input type="datetime-local" id="modal_fecha">
-            
-            <label>Fiscal Asignado:</label>
-            <input type="text" id="modal_fiscal" placeholder="Nombre del Fiscal">
-            
-            <div class="modal-footer">
-                <button onclick="guardarCitacion()" style="background:#1e40af">Confirmar Cita</button>
-                <button onclick="cerrarModal()" class="btn-secondary">Cancelar</button>
-            </div>
+        <h3>EMITIR ORDEN DE CITACIÓN</h3>
+        <hr>
+        <input type="hidden" id="modal_id">
+        <label>Denunciado:</label>
+        <input id="modal_nombre" readonly class="readonly-input">
+        <label>Fecha y Hora de Comparecencia:</label>
+        <input type="datetime-local" id="modal_fecha">
+        <label>Fiscal a cargo del caso:</label>
+        <input type="text" id="modal_fiscal" placeholder="Nombre completo">
+        <div class="modal-buttons">
+            <button onclick="guardarCitacion()" style="background:#059669">Generar Citación PDF</button>
+            <button onclick="cerrarModal()" class="btn-secondary">Cancelar</button>
         </div>
     </div>
 </div>
