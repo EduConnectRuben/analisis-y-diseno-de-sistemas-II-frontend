@@ -6,13 +6,12 @@ async function login() {
     const password = document.getElementById("login_password").value;
     try {
         const res = await fetch(`${API}/login`, {
-            method: "POST",
-            headers: {"Content-Type": "application/json"},
+            method: "POST", headers: {"Content-Type": "application/json"},
             body: JSON.stringify({email, password})
         });
         const data = await res.json();
         if (res.ok) {
-            if (data.rol === 'pendiente') return alert("CUENTA BLOQUEADA: Espere a que el Admin asigne su cargo.");
+            if (data.rol === 'pendiente') return alert("CUENTA EN ESPERA: Su solicitud aún no ha sido aprobada por el Administrador.");
             
             document.getElementById("auth-section").style.display = "none";
             document.getElementById("btn-logout").style.display = "block";
@@ -26,46 +25,59 @@ async function login() {
                 document.getElementById("view-fiscal").style.display = "block";
                 cargarFiscalia();
             }
-        } else alert("Datos incorrectos");
-    } catch(e) { alert("Error de conexión"); }
+        } else alert("Credenciales Incorrectas");
+    } catch(e) { alert("Error de conexión con el servidor"); }
 }
 
 async function registrar() {
     const email = document.getElementById("reg_email").value;
     const password = document.getElementById("reg_password").value;
+    if(!email || !password) return alert("Llene los datos");
     const res = await fetch(`${API}/registro`, {
         method: "POST", headers: {"Content-Type": "application/json"},
         body: JSON.stringify({email, password})
     });
     const data = await res.json();
-    alert(data.mensaje);
+    alert(data.detail || data.mensaje);
 }
 
-// --- ADMIN ---
+// --- PANEL ADMIN ---
 async function cargarAdmin() {
-    const res = await fetch(`${API}/admin/usuarios`);
-    const users = await res.json();
-    const tbody = document.getElementById("lista-admin");
-    tbody.innerHTML = "";
-    users.forEach(u => {
-        tbody.innerHTML += `<tr>
-            <td>${u[1]}</td>
-            <td>${u[2]}</td>
-            <td>
-                <button onclick="asignar(${u[0]},'policia')" class="btn-sm blue">Hacer Policía</button>
-                <button onclick="asignar(${u[0]},'fiscal')" class="btn-sm gold">Hacer Fiscal</button>
-            </td>
-        </tr>`;
-    });
+    try {
+        const res = await fetch(`${API}/admin/usuarios`);
+        const users = await res.json();
+        const tbody = document.getElementById("lista-admin");
+        tbody.innerHTML = "";
+        
+        if(users.length === 0) {
+            tbody.innerHTML = "<tr><td colspan='3' style='text-align:center;'>No hay solicitudes de registro pendientes</td></tr>";
+            return;
+        }
+
+        users.forEach(u => {
+            const statusClass = u[2] === 'pendiente' ? 'red' : (u[2] === 'policia' ? 'blue' : 'gold');
+            tbody.innerHTML += `
+                <tr>
+                    <td><b>${u[1]}</b></td>
+                    <td><span class="badge ${statusClass}">${u[2].toUpperCase()}</span></td>
+                    <td>
+                        <button onclick="asignar(${u[0]},'policia')" class="btn-sm btn-primary">Hacer Policía</button>
+                        <button onclick="asignar(${u[0]},'fiscal')" class="btn-sm gold" style="color:white;">Hacer Fiscal</button>
+                    </td>
+                </tr>`;
+        });
+    } catch (e) { console.error(e); }
 }
 
 async function asignar(id, rol) {
-    await fetch(`${API}/admin/asignar_rol`, {
+    const res = await fetch(`${API}/admin/asignar_rol`, {
         method: "POST", headers: {"Content-Type": "application/json"},
         body: JSON.stringify({user_id: id, nuevo_rol: rol})
     });
-    alert("Cargo actualizado");
-    cargarAdmin();
+    if(res.ok) {
+        alert("CARGO ASIGNADO CORRECTAMENTE");
+        cargarAdmin();
+    }
 }
 
 // --- POLICIA ---
@@ -73,17 +85,17 @@ async function crearDenuncia() {
     const nombre = document.getElementById("den_nombre").value;
     const ci = document.getElementById("den_ci").value;
     const desc = document.getElementById("den_desc").value;
-    if(!nombre || !ci) return alert("Llene los datos");
+    if(!nombre || !ci) return alert("Ingrese los datos del sujeto");
 
     await fetch(`${API}/denuncias`, {
         method: "POST", headers: {"Content-Type": "application/json"},
         body: JSON.stringify({nombre, ci, descripcion: desc})
     });
     
-    descargarPDFDenuncia(nombre, ci, desc);
+    descargarPDF(nombre, ci, desc);
 }
 
-function descargarPDFDenuncia(nombre, ci, hecho) {
+function descargarPDF(nombre, ci, hecho) {
     const doc = new jsPDF();
     const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=POLICIA-PD8-DENUNCIA-${ci}`;
     
@@ -94,7 +106,7 @@ function descargarPDFDenuncia(nombre, ci, hecho) {
         doc.setFontSize(12); doc.text(`DENUNCIADO: ${nombre}`, 20, 50);
         doc.text(`C.I.: ${ci}`, 20, 60);
         doc.text("RELATO DE HECHOS:", 20, 75);
-        doc.text(hecho, 20, 85, {maxWidth: 170});
+        doc.setFontSize(10); doc.text(hecho, 20, 85, {maxWidth: 170});
         
         const qrImg = new Image(); qrImg.src = qrUrl;
         qrImg.onload = () => {
@@ -114,7 +126,7 @@ async function cargarFiscalia() {
         tbody.innerHTML += `<tr>
             <td>${d[1]}</td>
             <td>${d[2]}</td>
-            <td><button onclick="abrirCita(${d[0]},'${d[1]}')" class="btn-sm gold">Emitir Cita</button></td>
+            <td><button onclick="abrirCita(${d[0]},'${d[1]}')" class="btn-sm gold" style="color:white;">Emitir Cita</button></td>
         </tr>`;
     });
 }
@@ -127,8 +139,11 @@ function abrirCita(id, nombre) {
 
 function generarCitacionPDF() {
     const nombre = document.getElementById("modal_nombre").value;
-    const fecha = document.getElementById("modal_fecha").value;
+    const fechaRaw = document.getElementById("modal_fecha").value;
     const fiscal = document.getElementById("modal_fiscal").value;
+    if(!fechaRaw || !fiscal) return alert("Llene los datos");
+
+    const fecha = new Date(fechaRaw).toLocaleString();
     const doc = new jsPDF();
     
     const img = new Image(); img.src = 'citacion.png';
