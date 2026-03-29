@@ -3,76 +3,85 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SISTEMA PD-8</title>
+    <title>SISTEMA PD-8 PRO</title>
     <link rel="stylesheet" href="style.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 </head>
 <body>
     <div class="container">
         <header>
-            <img src="denuncia.png" class="logo-img">
-            <h1>DISTRITO POLICIAL N° 8<br><small>SISTEMA JUDICIAL</small></h1>
+            <img src="denuncia.png" class="logo-small">
+            <h1>DISTRITO POLICIAL N° 8</h1>
         </header>
 
         <!-- LOGIN -->
-        <div id="auth-section" class="card">
-            <h2>Acceso de Oficiales</h2>
+        <div id="auth-section" class="card shadow">
+            <h2>Ingreso Autorizado</h2>
             <input id="login_email" type="email" placeholder="Correo">
             <input id="login_password" type="password" placeholder="Contraseña">
             <button class="btn-blue" onclick="login()">INGRESAR</button>
             <hr>
-            <input id="reg_email" placeholder="Solicitar Nuevo Correo">
+            <input id="reg_email" placeholder="Nuevo Correo">
             <input id="reg_password" type="password" placeholder="Nueva Clave">
-            <button class="btn-gray" onclick="registrar()">REGISTRAR OFICIAL</button>
+            <button class="btn-gray" onclick="registrar()">SOLICITAR REGISTRO</button>
         </div>
 
         <!-- DASHBOARD -->
         <div id="dashboard" style="display:none;">
-            <div class="user-info">
+            <div class="user-status">
                 <span id="user-display"></span> | <span id="rol-display" class="badge"></span>
             </div>
 
             <!-- VISTA PENDIENTE -->
             <div id="view-pendiente" style="display:none;" class="card warning">
-                <h3>⚠️ ACCESO PENDIENTE</h3>
-                <p>El Administrador debe autorizar su cargo.</p>
+                <h3>⚠️ ACCESO LIMITADO</h3>
+                <p>Su cargo aún no ha sido autorizado por el Administrador.</p>
             </div>
 
             <!-- VISTA ADMIN -->
             <div id="view-admin" style="display:none;" class="card">
-                <h3>Aprobación de Personal</h3>
+                <h3>Gestión de Personal Policial</h3>
                 <table>
-                    <thead><tr><th>Oficial</th><th>Cargo</th><th>Acción</th></tr></thead>
+                    <thead><tr><th>Oficial</th><th>Rango</th><th>Acción</th></tr></thead>
                     <tbody id="lista-admin"></tbody>
                 </table>
             </div>
 
             <!-- VISTA POLICIA -->
-            <div id="view-policia" style="display:none;" class="card">
-                <h3>Registro de Denuncia</h3>
-                <input id="den_nombre" placeholder="Nombre Sujeto">
-                <input id="den_ci" placeholder="C.I.">
-                <textarea id="den_desc" placeholder="Relato de los hechos..."></textarea>
-                <button class="btn-blue" onclick="procesarDenuncia()">GUARDAR Y PDF</button>
+            <div id="view-policia" style="display:none;">
+                <div class="card">
+                    <h3>Registrar Nueva Denuncia</h3>
+                    <input id="den_nombre" placeholder="Nombre completo">
+                    <input id="den_ci" placeholder="C.I.">
+                    <textarea id="den_desc" placeholder="Descripción de los hechos..."></textarea>
+                    <button class="btn-blue" onclick="procesarDenuncia()">GUARDAR DENUNCIA</button>
+                </div>
+                <div class="card">
+                    <h3>Mis Denuncias Registradas</h3>
+                    <table>
+                        <thead><tr><th>Nombre</th><th>CI</th><th>Descargar</th></tr></thead>
+                        <tbody id="lista-denuncias-policia"></tbody>
+                    </table>
+                </div>
             </div>
 
             <!-- VISTA FISCAL -->
             <div id="view-fiscal" style="display:none;" class="card">
-                <h3>Bandeja de Casos</h3>
+                <h3>Casos Recibidos para Citación</h3>
                 <table>
                     <thead><tr><th>Sujeto</th><th>CI</th><th>Gestión</th></tr></thead>
                     <tbody id="lista-fiscal"></tbody>
                 </table>
             </div>
 
-            <button class="btn-red" onclick="location.reload()">CERRAR SISTEMA</button>
+            <button class="btn-red" onclick="location.reload()">CERRAR SESIÓN</button>
         </div>
     </div>
 
     <!-- MODAL CITACION -->
     <div id="modal-citacion" class="modal">
-        <div class="modal-content card">
-            <h3>ORDEN DE CITACIÓN</h3>
+        <div class="modal-content card shadow">
+            <h3>EMITIR ORDEN DE CITACIÓN</h3>
             <input type="hidden" id="modal_id">
             <input id="modal_nombre" readonly>
             <select id="modal_nivel">
@@ -81,8 +90,8 @@
                 <option value="3ra Citación (Ultimátum)">3ra CITACIÓN</option>
             </select>
             <input type="datetime-local" id="modal_fecha">
-            <input id="modal_fiscal" placeholder="Nombre Fiscal">
-            <button onclick="procesarCitacion()" class="btn-green">GENERAR CITACIÓN</button>
+            <input id="modal_fiscal" placeholder="Nombre del Fiscal">
+            <button onclick="procesarCitacion()" class="btn-blue">GENERAR Y DESCARGAR PDF</button>
             <button onclick="cerrarModal()" class="btn-gray">CANCELAR</button>
         </div>
     </div>

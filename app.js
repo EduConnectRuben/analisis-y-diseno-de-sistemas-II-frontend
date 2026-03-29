@@ -26,14 +26,15 @@ async function login() {
                 cargarAdmin();
             } else if (data.rol === 'policia') {
                 document.getElementById("view-policia").style.display = "block";
+                cargarDenunciasPolicia();
             } else if (data.rol === 'fiscal') {
                 document.getElementById("view-fiscal").style.display = "block";
                 cargarFiscalia();
             } else {
                 document.getElementById("view-pendiente").style.display = "block";
             }
-        } else alert("Error de credenciales");
-    } catch(e) { alert("Error de conexión"); }
+        } else alert("Datos incorrectos");
+    } catch(e) { alert("Error de servidor"); }
 }
 
 async function registrar() {
@@ -44,31 +45,10 @@ async function registrar() {
         body: JSON.stringify({email, password})
     });
     if(res.ok) alert("Solicitud enviada");
-    else alert("Error: El usuario ya existe");
+    else alert("El usuario ya existe");
 }
 
-async function cargarAdmin() {
-    const res = await fetch(`${API}/admin/usuarios`);
-    const users = await res.json();
-    const tbody = document.getElementById("lista-admin");
-    tbody.innerHTML = "";
-    users.forEach(u => {
-        tbody.innerHTML += `<tr><td>${u[1]}</td><td>${u[2]}</td><td>
-            <button onclick="asignar(${u[0]},'policia')" style="background:blue; padding:5px; font-size:10px; width:auto;">Policía</button>
-            <button onclick="asignar(${u[0]},'fiscal')" style="background:orange; padding:5px; font-size:10px; width:auto;">Fiscal</button>
-        </td></tr>`;
-    });
-}
-
-async function asignar(id, rol) {
-    await fetch(`${API}/admin/asignar`, {
-        method: "POST", headers: {"Content-Type": "application/json"},
-        body: JSON.stringify({user_id: id, nuevo_rol: rol})
-    });
-    alert("Cargo asignado");
-    cargarAdmin();
-}
-
+// --- POLICIA ---
 async function procesarDenuncia() {
     const nombre = document.getElementById("den_nombre").value;
     const ci = document.getElementById("den_ci").value;
@@ -80,9 +60,22 @@ async function procesarDenuncia() {
         body: JSON.stringify({nombre, ci, descripcion: desc})
     });
     if(res.ok) {
-        alert("Guardado en sistema");
+        alert("DENUNCIA GUARDADA EN EL SISTEMA");
+        cargarDenunciasPolicia();
         generarPDF(nombre, ci, desc);
     }
+}
+
+async function cargarDenunciasPolicia() {
+    const res = await fetch(`${API}/denuncias`);
+    const datos = await res.json();
+    const tbody = document.getElementById("lista-denuncias-policia");
+    tbody.innerHTML = "";
+    datos.forEach(d => {
+        tbody.innerHTML += `<tr><td>${d[1]}</td><td>${d[2]}</td><td>
+            <button class="btn-blue" style="width:auto; padding:5px 10px;" onclick="generarPDF('${d[1]}','${d[2]}','${d[3]}')">PDF</button>
+        </td></tr>`;
+    });
 }
 
 function generarPDF(nombre, ci, hecho) {
@@ -90,25 +83,25 @@ function generarPDF(nombre, ci, hecho) {
     const img = new Image(); img.src = 'denuncia.png';
     img.onload = () => {
         doc.addImage(img, 'PNG', 85, 10, 35, 35);
-        doc.setFont(undefined, 'bold');
-        doc.text("ACTA DE DENUNCIA PD-8", 105, 55, {align:'center'});
-        doc.setFont(undefined, 'normal');
-        doc.text(`Denunciado: ${nombre} | CI: ${ci}`, 20, 75);
-        doc.text("HECHOS:", 20, 85);
-        doc.text(hecho, 20, 95, {maxWidth: 170, align:'justify'});
-        const qr = `https://api.qrserver.com/v1/create-qr-code/?size=100x100&data=PD8-DEN-${ci}`;
-        const qrImg = new Image(); qrImg.src = qr;
+        doc.setFont("helvetica", "bold");
+        doc.text("ACTA DE DENUNCIA FORMAL", 105, 55, {align:'center'});
+        doc.setFont("helvetica", "normal");
+        doc.setFontSize(11);
+        let texto = `En el Distrito Policial N° 8, se registra la denuncia contra ${nombre} con C.I. ${ci}.\n\nHECHOS:\n${hecho}\n\nDocumento generado con firma digital QR.`;
+        doc.text(texto, 20, 80, {maxWidth: 170, align:'justify'});
+        const qrImg = new Image(); qrImg.src = `https://api.qrserver.com/v1/create-qr-code/?size=100x100&data=DENUNCIA-PD8-${ci}`;
         qrImg.onload = () => { doc.addImage(qrImg, 'PNG', 150, 240, 35, 35); doc.save(`Denuncia_${ci}.pdf`); };
     };
 }
 
+// --- FISCALIA ---
 async function cargarFiscalia() {
     const res = await fetch(`${API}/denuncias`);
     const datos = await res.json();
     const tbody = document.getElementById("lista-fiscal");
     tbody.innerHTML = "";
     datos.forEach(d => {
-        tbody.innerHTML += `<tr><td>${d[1]}</td><td>${d[2]}</td><td><button onclick="abrirCita(${d[0]},'${d[1]}')" style="background:green; padding:5px; width:auto;">Citar</button></td></tr>`;
+        tbody.innerHTML += `<tr><td>${d[1]}</td><td>${d[2]}</td><td><button onclick="abrirCita(${d[0]},'${d[1]}')" class="btn-blue" style="width:auto; padding:5px;">CITAR</button></td></tr>`;
     });
 }
 
@@ -134,14 +127,36 @@ function procesarCitacion() {
     const img = new Image(); img.src = 'citacion.png';
     img.onload = () => {
         doc.addImage(img, 'PNG', 85, 10, 35, 35);
-        doc.setFont(undefined, 'bold');
+        doc.setFont("helvetica", "bold");
         doc.text(`ORDEN DE ${nivel.toUpperCase()}`, 105, 55, {align:'center'});
-        doc.setFont(undefined, 'normal');
-        doc.text(`Sujeto: ${nombre}\nFecha: ${fecha}\nFiscal: ${fiscal}`, 20, 80);
-        const qr = `https://api.qrserver.com/v1/create-qr-code/?size=100x100&data=CITA-${nombre}`;
-        const qrImg = new Image(); qrImg.src = qr;
+        doc.setFont("helvetica", "normal");
+        doc.text(`Se cita a: ${nombre}\nFecha: ${new Date(fecha).toLocaleString()}\nFiscal: ${fiscal}`, 20, 80);
+        const qrImg = new Image(); qrImg.src = `https://api.qrserver.com/v1/create-qr-code/?size=100x100&data=CITA-${nombre}`;
         qrImg.onload = () => { doc.addImage(qrImg, 'PNG', 150, 240, 35, 35); doc.save(`Cita_${nombre}.pdf`); cerrarModal(); };
     };
+}
+
+// --- ADMIN ---
+async function cargarAdmin() {
+    const res = await fetch(`${API}/admin/usuarios`);
+    const users = await res.json();
+    const tbody = document.getElementById("lista-admin");
+    tbody.innerHTML = "";
+    users.forEach(u => {
+        tbody.innerHTML += `<tr><td>${u[1]}</td><td>${u[2]}</td><td>
+            <button onclick="asignar(${u[0]},'policia')" style="background:blue; font-size:10px;">Policía</button>
+            <button onclick="asignar(${u[0]},'fiscal')" style="background:orange; font-size:10px;">Fiscal</button>
+        </td></tr>`;
+    });
+}
+
+async function asignar(id, rol) {
+    await fetch(`${API}/admin/asignar`, {
+        method: "POST", headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({user_id: id, nuevo_rol: rol})
+    });
+    alert("Cargo asignado");
+    cargarAdmin();
 }
 
 function cerrarModal() { document.getElementById("modal-citacion").style.display = "none"; }
