@@ -1,10 +1,10 @@
 body { font-family: sans-serif; background: #cbd5e1; margin: 0; padding: 20px; }
-.container { max-width: 850px; margin: 0 auto; }
+.container { max-width: 800px; margin: 0 auto; }
 header { text-align: center; margin-bottom: 20px; background: white; padding: 15px; border-radius: 10px; border-bottom: 4px solid #1e3a8a; }
-.logo-small { width: 80px; height: auto; }
-.card { background: white; padding: 25px; border-radius: 15px; box-shadow: 0 10px 20px rgba(0,0,0,0.1); margin-bottom: 20px; }
+.logo-top { width: 80px; height: auto; }
+.card { background: white; padding: 25px; border-radius: 15px; box-shadow: 0 10px 20px rgba(0,0,0,0.2); margin-bottom: 20px; }
 input, textarea, select { width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #ccc; border-radius: 8px; box-sizing: border-box; }
-button { width: 100%; padding: 12px; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; color: white; transition: 0.3s; }
+button { width: 100%; padding: 12px; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; color: white; }
 .btn-blue { background: #1e3a8a; }
 .btn-gray { background: #475569; }
 .btn-red { background: #b91c1c; }
@@ -13,3 +13,4 @@ table { width: 100%; border-collapse: collapse; margin-top: 10px; }
 th, td { text-align: left; padding: 12px; border-bottom: 1px solid #eee; }
 .modal { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.75); }
 .modal-content { margin: 8% auto; max-width: 420px; }
+.warning { background: #fffbeb; border-left: 10px solid #f59e0b; }
