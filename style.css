@@ -1,8 +1,9 @@
-body { font-family: sans-serif; background: #94a3b8; padding: 20px; }
+body { font-family: sans-serif; background: #cbd5e1; margin: 0; padding: 20px; }
 .main-container { max-width: 800px; margin: 0 auto; }
 .card { background: white; padding: 25px; border-radius: 12px; box-shadow: 0 10px 15px rgba(0,0,0,0.2); margin-bottom: 20px; }
-input, textarea { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #ccc; border-radius: 6px; box-sizing: border-box; }
-button { width: 100%; padding: 12px; background: #1e3a8a; color: white; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; }
+.warning { border-left: 10px solid #f59e0b; background: #fffbeb; }
+input, textarea { width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #ccc; border-radius: 6px; box-sizing: border-box; }
+button { width: 100%; padding: 14px; background: #1e3a8a; color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; }
 .btn-primary { background: #1e3a8a; }
 .btn-secondary { background: #475569; }
 .btn-danger { background: #b91c1c; }

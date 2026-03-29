@@ -11,16 +11,17 @@ async function login() {
         });
         const data = await res.json();
         if (res.ok) {
-            if (data.rol === 'pendiente') return alert("CUENTA EN ESPERA: El administrador debe darle un cargo.");
-            
+            // SIEMPRE ENTRAMOS AL DASHBOARD
             document.getElementById("auth-section").style.display = "none";
             document.getElementById("dashboard").style.display = "block";
             
-            // RESETEAMOS VISTAS
+            // OCULTAMOS TODO PRIMERO
+            document.getElementById("view-pendiente").style.display = "none";
             document.getElementById("view-admin").style.display = "none";
             document.getElementById("view-policia").style.display = "none";
             document.getElementById("view-fiscal").style.display = "none";
 
+            // MOSTRAR SEGUN ROL
             if (data.rol === 'admin') {
                 document.getElementById("view-admin").style.display = "block";
                 cargarAdmin();
@@ -29,6 +30,9 @@ async function login() {
             } else if (data.rol === 'fiscal') {
                 document.getElementById("view-fiscal").style.display = "block";
                 cargarFiscalia();
+            } else {
+                // SI ES PENDIENTE, ENTRA PERO VE EL AVISO
+                document.getElementById("view-pendiente").style.display = "block";
             }
         } else alert("Credenciales incorrectas");
     } catch(e) { alert("Error de conexión"); }
@@ -45,32 +49,22 @@ async function registrar() {
     alert(data.mensaje || data.detail);
 }
 
-// --- LOGICA ADMIN ---
+// ADMIN: Lista a TODOS los registrados
 async function cargarAdmin() {
-    console.log("Cargando lista de oficiales...");
-    try {
-        const res = await fetch(`${API}/admin/usuarios`);
-        const users = await res.json();
-        const tbody = document.getElementById("lista-admin");
-        tbody.innerHTML = "";
-        
-        if (users.length === 0) {
-            tbody.innerHTML = "<tr><td colspan='3' style='text-align:center;'>No hay otros oficiales registrados aún.</td></tr>";
-            return;
-        }
-
-        users.forEach(u => {
-            tbody.innerHTML += `
-                <tr>
-                    <td><b>${u[1]}</b></td>
-                    <td><span class="badge gray">${u[2].toUpperCase()}</span></td>
-                    <td>
-                        <button onclick="asignar(${u[0]},'policia')" class="btn-sm btn-primary">Cargo Policía</button>
-                        <button onclick="asignar(${u[0]},'fiscal')" class="btn-sm gold" style="color:white">Cargo Fiscal</button>
-                    </td>
-                </tr>`;
-        });
-    } catch (e) { alert("Error al conectar con la base de datos"); }
+    const res = await fetch(`${API}/admin/usuarios`);
+    const users = await res.json();
+    const tbody = document.getElementById("lista-admin");
+    tbody.innerHTML = "";
+    users.forEach(u => {
+        tbody.innerHTML += `<tr>
+            <td>${u[1]}</td>
+            <td><span class="badge gray">${u[2]}</span></td>
+            <td>
+                <button onclick="asignar(${u[0]},'policia')" class="btn-sm btn-primary">Hacer Policía</button>
+                <button onclick="asignar(${u[0]},'fiscal')" class="btn-sm gold" style="color:white">Hacer Fiscal</button>
+            </td>
+        </tr>`;
+    });
 }
 
 async function asignar(id, rol) {
@@ -82,7 +76,7 @@ async function asignar(id, rol) {
     cargarAdmin();
 }
 
-// --- LOGICA POLICIA ---
+// POLICIA
 async function crearDenuncia() {
     const nombre = document.getElementById("den_nombre").value;
     const ci = document.getElementById("den_ci").value;
@@ -96,30 +90,27 @@ async function crearDenuncia() {
 
 function generarPDF(nombre, ci, hecho) {
     const doc = new jsPDF();
-    const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=PD8-DEN-${ci}`;
     const img = new Image(); img.src = 'denuncia.png';
     img.onload = () => {
         doc.addImage(img, 'PNG', 10, 10, 30, 30);
         doc.text("DENUNCIA POLICIAL PD-8", 105, 25, null, null, "center");
-        doc.text(`Denunciado: ${nombre}`, 20, 50);
-        doc.text(`C.I.: ${ci}`, 20, 60);
-        doc.text(hecho, 20, 75, {maxWidth: 170});
-        const qrImg = new Image(); qrImg.src = qrUrl;
-        qrImg.onload = () => {
-            doc.addImage(qrImg, 'PNG', 160, 10, 35, 35);
-            doc.save(`Denuncia_${ci}.pdf`);
-        };
+        doc.text(`Sujeto: ${nombre} | CI: ${ci}`, 20, 50);
+        doc.text("Hechos:", 20, 60);
+        doc.text(hecho, 20, 70, {maxWidth: 170});
+        const qr = `https://api.qrserver.com/v1/create-qr-code/?size=100x100&data=PD8-${ci}`;
+        const qrImg = new Image(); qrImg.src = qr;
+        qrImg.onload = () => { doc.addImage(qrImg, 'PNG', 160, 10, 30, 30); doc.save(`Denuncia_${ci}.pdf`); };
     };
 }
 
-// --- LOGICA FISCALIA ---
+// FISCALIA
 async function cargarFiscalia() {
     const res = await fetch(`${API}/denuncias`);
     const datos = await res.json();
     const tbody = document.getElementById("lista-fiscal");
     tbody.innerHTML = "";
     datos.forEach(d => {
-        tbody.innerHTML += `<tr><td>${d[1]}</td><td>${d[2]}</td><td><button onclick="abrirCita(${d[0]},'${d[1]}')" class="btn-sm gold" style="color:white">Generar Cita</button></td></tr>`;
+        tbody.innerHTML += `<tr><td>${d[1]}</td><td>${d[2]}</td><td><button onclick="abrirCita(${d[0]},'${d[1]}')" class="btn-sm gold" style="color:white">Citar</button></td></tr>`;
     });
 }
 
@@ -135,17 +126,12 @@ function generarCitacionPDF() {
     const doc = new jsPDF();
     const img = new Image(); img.src = 'citacion.png';
     img.onload = () => {
-        doc.addImage(img, 'PNG', 160, 10, 35, 35);
+        doc.addImage(img, 'PNG', 160, 10, 30, 30);
         doc.text("CITACIÓN FISCAL PD-8", 105, 30, null, null, "center");
         doc.text(`Citado: ${nombre}`, 20, 60);
         doc.text(`Fecha: ${fecha}`, 20, 70);
-        const qrImg = new Image(); qrImg.src = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=CITA-${nombre}`;
-        qrImg.onload = () => {
-            doc.addImage(qrImg, 'PNG', 20, 100, 40, 40);
-            doc.save(`Citacion_${nombre}.pdf`);
-            cerrarModal();
-        };
+        const qrImg = new Image(); qrImg.src = `https://api.qrserver.com/v1/create-qr-code/?size=100x100&data=CITA-${nombre}`;
+        qrImg.onload = () => { doc.addImage(qrImg, 'PNG', 20, 100, 35, 35); doc.save(`Cita_${nombre}.pdf`); cerrarModal(); };
     };
 }
-
 function cerrarModal() { document.getElementById("modal-citacion").style.display = "none"; }

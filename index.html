@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SISTEMA PD-8 - BOLIVIA</title>
+    <title>SISTEMA PD-8</title>
     <link rel="stylesheet" href="style.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 </head>
@@ -11,75 +11,74 @@
 
 <div class="main-container">
     <header>
-        <img src="denuncia.png" width="80" class="logo">
-        <h1>POLICÍA NACIONAL DE BOLIVIA<br><small>SISTEMA PD-8</small></h1>
+        <img src="denuncia.png" width="80" class="logo" onerror="this.style.display='none'">
+        <h1>POLICÍA NACIONAL - SISTEMA PD-8</h1>
     </header>
 
-    <!-- PANTALLA INICIAL: LOGIN / REGISTRO -->
+    <!-- PANTALLA LOGIN -->
     <div id="auth-section" class="card shadow">
-        <h2>Acceso al Sistema</h2>
-        <input id="login_email" type="email" placeholder="Correo Institucional">
+        <h2>Ingreso al Sistema</h2>
+        <input id="login_email" type="email" placeholder="Correo">
         <input id="login_password" type="password" placeholder="Contraseña">
         <button class="btn-primary" onclick="login()">INGRESAR</button>
         <hr>
-        <p style="text-align:center; font-size:12px;">Solicitar nueva cuenta oficial:</p>
+        <h3>Registro de Nuevo Oficial</h3>
         <input id="reg_email" placeholder="Email">
         <input id="reg_password" type="password" placeholder="Clave">
-        <button class="btn-secondary" onclick="registrar()">REGISTRAR OFICIAL</button>
+        <button class="btn-secondary" onclick="registrar()">SOLICITAR REGISTRO</button>
     </div>
 
-    <!-- CONTENEDOR PRINCIPAL POST-LOGIN -->
+    <!-- PANTALLA PRINCIPAL (DASHBOARD) -->
     <div id="dashboard" style="display:none;">
         
-        <!-- SECCION ADMIN -->
+        <!-- 1. VISTA PARA USUARIOS SIN CARGO (PENDIENTES) -->
+        <div id="view-pendiente" style="display:none;" class="card shadow warning">
+            <h2>Acceso Limitado</h2>
+            <p>Usted ha ingresado correctamente, pero <b>aún no tiene un cargo asignado</b>.</p>
+            <p>Por favor, espere a que el <b>Administrador</b> autorice su cuenta como Policía o Fiscal.</p>
+        </div>
+
+        <!-- 2. VISTA ADMINISTRADOR -->
         <div id="view-admin" style="display:none;" class="card shadow">
-            <h2 class="badge red">PANEL DE ADMINISTRACIÓN</h2>
-            <h3>Lista de Solicitudes de Personal</h3>
-            <button onclick="cargarAdmin()" class="btn-sm blue">Actualizar Lista</button>
-            <div class="table-container">
+            <h2 class="badge red">ADMINISTRADOR</h2>
+            <h3>Oficiales Registrados en el Sistema</h3>
+            <div class="table-wrapper">
                 <table>
-                    <thead>
-                        <tr>
-                            <th>Email Oficial</th>
-                            <th>Estado</th>
-                            <th>Acciones</th>
-                        </tr>
-                    </thead>
+                    <thead><tr><th>Oficial</th><th>Cargo Actual</th><th>Acción</th></tr></thead>
                     <tbody id="lista-admin"></tbody>
                 </table>
             </div>
         </div>
 
-        <!-- SECCION POLICIA -->
+        <!-- 3. VISTA POLICÍA -->
         <div id="view-policia" style="display:none;" class="card shadow">
-            <h2 class="badge blue">MÓDULO SARGENTO: DENUNCIAS</h2>
-            <input id="den_nombre" placeholder="Nombre Denunciado">
+            <h2 class="badge blue">MÓDULO SARGENTO</h2>
+            <h3>Registrar Nueva Denuncia</h3>
+            <input id="den_nombre" placeholder="Nombre Sujeto">
             <input id="den_ci" placeholder="C.I.">
-            <textarea id="den_desc" placeholder="Relato de hechos..."></textarea>
-            <button class="btn-primary" onclick="crearDenuncia()">GUARDAR Y DESCARGAR PDF</button>
+            <textarea id="den_desc" placeholder="Relato del hecho"></textarea>
+            <button class="btn-primary" onclick="crearDenuncia()">GUARDAR DENUNCIA (PDF+QR)</button>
         </div>
 
-        <!-- SECCION FISCALIA -->
+        <!-- 4. VISTA FISCALÍA -->
         <div id="view-fiscal" style="display:none;" class="card shadow">
-            <h2 class="badge gold">MÓDULO FISCALÍA: CITACIONES</h2>
-            <div class="table-container">
+            <h2 class="badge gold">MÓDULO FISCALÍA</h2>
+            <h3>Casos para Citación</h3>
+            <div class="table-wrapper">
                 <table>
-                    <thead>
-                        <tr><th>Sujeto</th><th>CI</th><th>Gestión</th></tr>
-                    </thead>
+                    <thead><tr><th>Sujeto</th><th>CI</th><th>Gestión</th></tr></thead>
                     <tbody id="lista-fiscal"></tbody>
                 </table>
             </div>
         </div>
 
-        <button class="btn-danger" style="margin-top:20px;" onclick="location.reload()">CERRAR SISTEMA</button>
+        <button class="btn-danger" style="margin-top:20px;" onclick="location.reload()">CERRAR SESIÓN</button>
     </div>
 </div>
 
-<!-- MODAL PARA CITACIONES -->
 <div id="modal-citacion" class="modal">
     <div class="modal-content card shadow">
-        <h3>EMITIR CITACIÓN</h3>
+        <h3>EMITIR CITACIÓN FISCAL</h3>
         <input type="hidden" id="modal_id">
         <input id="modal_nombre" readonly class="readonly">
         <input type="datetime-local" id="modal_fecha">
