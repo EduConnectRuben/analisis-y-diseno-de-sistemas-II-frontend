@@ -10,67 +10,80 @@
 <body>
     <div class="main-container">
         <header>
-            <img src="denuncia.png" width="70" onerror="this.style.display='none'">
-            <h1>DISTRITO POLICIAL N° 8</h1>
+            <img src="denuncia.png" width="60" class="logo-circle">
+            <h1>DISTRITO POLICIAL N° 8<br><small>GESTIÓN JUDICIAL</small></h1>
         </header>
 
+        <!-- LOGIN -->
         <div id="auth-section" class="card shadow">
-            <h2>Ingreso de Oficiales</h2>
-            <input id="login_email" type="email" placeholder="Correo">
+            <h2>Acceso Autorizado</h2>
+            <input id="login_email" type="email" placeholder="Usuario">
             <input id="login_password" type="password" placeholder="Contraseña">
             <button class="btn-primary" onclick="login()">INGRESAR</button>
-            <hr>
-            <input id="reg_email" placeholder="Nuevo Correo">
-            <input id="reg_password" type="password" placeholder="Nueva Clave">
-            <button class="btn-secondary" onclick="registrar()">SOLICITAR REGISTRO</button>
         </div>
 
+        <!-- DASHBOARD -->
         <div id="dashboard" style="display:none;">
-            <div class="user-info">
+            <div class="user-bar">
                 <span id="user-display"></span> | <span id="rol-display" class="badge"></span>
             </div>
 
+            <!-- VISTA PENDIENTE -->
             <div id="view-pendiente" style="display:none;" class="card shadow warning">
-                <h2>Acceso Limitado</h2>
-                <p>Su cuenta no tiene cargo. Espere al Administrador.</p>
+                <h3>⚠️ CUENTA EN ESPERA</h3>
+                <p>El Administrador debe asignar su cargo (Policía o Fiscal).</p>
             </div>
 
+            <!-- VISTA ADMIN -->
             <div id="view-admin" style="display:none;" class="card shadow">
-                <h2 class="badge red">ADMINISTRACIÓN</h2>
-                <table>
-                    <thead><tr><th>Email</th><th>Rango</th><th>Asignar</th></tr></thead>
+                <h3>Control de Personal</h3>
+                <table id="table-admin">
+                    <thead><tr><th>Oficial</th><th>Cargo</th><th>Acción</th></tr></thead>
                     <tbody id="lista-admin"></tbody>
                 </table>
             </div>
 
+            <!-- VISTA POLICIA -->
             <div id="view-policia" style="display:none;" class="card shadow">
-                <h2 class="badge blue">DENUNCIAS</h2>
-                <input id="den_nombre" placeholder="Nombre Sujeto">
-                <input id="den_ci" placeholder="CI">
-                <textarea id="den_desc" placeholder="Hechos"></textarea>
-                <button class="btn-primary" onclick="crearDenuncia()">GUARDAR Y PDF</button>
+                <h3>Nuevo Registro de Denuncia</h3>
+                <input id="den_nombre" placeholder="Nombre completo del denunciado">
+                <input id="den_ci" placeholder="C.I.">
+                <textarea id="den_desc" placeholder="Relato detallado de los hechos..."></textarea>
+                <button class="btn-primary" onclick="guardarDenuncia()">GUARDAR DENUNCIA Y GENERAR PDF</button>
             </div>
 
+            <!-- VISTA FISCALIA -->
             <div id="view-fiscal" style="display:none;" class="card shadow">
-                <h2 class="badge gold">FISCALÍA</h2>
+                <h3>Casos para Citación Fiscal</h3>
                 <table>
-                    <thead><tr><th>Nombre</th><th>CI</th><th>Gestión</th></tr></thead>
+                    <thead><tr><th>Sujeto</th><th>CI</th><th>Acción</th></tr></thead>
                     <tbody id="lista-fiscal"></tbody>
                 </table>
             </div>
-            <button class="btn-danger" style="margin-top:20px;" onclick="location.reload()">CERRAR SESIÓN</button>
+
+            <button class="btn-danger" style="margin-top:20px;" onclick="location.reload()">SALIR DEL SISTEMA</button>
         </div>
     </div>
 
+    <!-- MODAL CITACION -->
     <div id="modal-citacion" class="modal">
-        <div class="modal-content card shadow">
-            <h3>CITACIÓN FISCAL</h3>
+        <div class="modal-content card">
+            <h3>ORDEN DE COMPARECENCIA</h3>
             <input type="hidden" id="modal_id">
+            <label>Sujeto:</label>
             <input id="modal_nombre" readonly>
+            <label>Nivel de Citación:</label>
+            <select id="modal_num">
+                <option value="PRIMERA">PRIMERA CITACIÓN</option>
+                <option value="SEGUNDA">SEGUNDA CITACIÓN</option>
+                <option value="TERCERA (ULTIMATUM)">TERCERA CITACIÓN - ULTIMATUM</option>
+            </select>
+            <label>Fecha y Hora:</label>
             <input type="datetime-local" id="modal_fecha">
-            <input id="modal_fiscal" placeholder="Nombre Fiscal">
-            <button onclick="generarCitacionPDF()" class="btn-success">GENERAR PDF</button>
-            <button onclick="cerrarModal()" class="btn-secondary" style="margin-top:10px;">CANCELAR</button>
+            <label>Fiscal de Turno:</label>
+            <input id="modal_fiscal" placeholder="Nombre completo">
+            <button onclick="generarPDFCitacion()" class="btn-success">GENERAR PDF LEGAL</button>
+            <button onclick="cerrarModal()" class="btn-secondary" style="margin-top:5px;">CANCELAR</button>
         </div>
     </div>
     <script src="app.js"></script>
