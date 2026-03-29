@@ -328,6 +328,10 @@ function abrirModal(id, nombre) {
     document.getElementById("modal-citacion").style.display = "flex";
 }
 
+function cerrarModal() {
+    document.getElementById("modal-citacion").style.display = "none";
+}
+
 async function procesarCitacion() {
     const denuncia_id = document.getElementById("modal_id").value;
     const nombre = document.getElementById("modal_nombre").value;
