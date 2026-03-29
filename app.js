@@ -66,7 +66,7 @@ async function registrar() {
 
 // ADMIN
 async function cargarAdmin() {
-    const res = await fetch(`${API}/admin/usuarios`);
+    const res = await fetch(`${API}/admin/usuarios?t=${Date.now()}`);
     const users = await res.json();
     const tbody = document.getElementById("lista-admin");
     tbody.innerHTML = "";
@@ -119,9 +119,9 @@ async function procesarDenuncia() {
     }
 }
 
-async function cargarDenunciasPolicia() {
-    const res = await fetch(`${API}/denuncias`);
-    const datos = await res.json();
+async function cargarDenunciasPolicia(filtro = '') {
+    const res = await fetch(`${API}/denuncias?t=${Date.now()}`);
+    let datos = await res.json();
     const tbody = document.getElementById("lista-denuncias-policia");
     tbody.innerHTML = "";
     datos.forEach(d => {
@@ -211,7 +211,7 @@ function generarPDFDenuncia(nombre, ci, hecho) {
 
 // FISCALIA
 async function cargarFiscalia() {
-    const res = await fetch(`${API}/denuncias`);
+    const res = await fetch(`${API}/denuncias?t=${Date.now()}`);
     const datos = await res.json();
     const tbody = document.getElementById("lista-fiscal");
     tbody.innerHTML = "";
