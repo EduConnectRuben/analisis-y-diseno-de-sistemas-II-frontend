@@ -259,28 +259,32 @@ async function cargarFiscalia() {
             }
 
             let botonesHTML = '';
+            const btnBase = 'class="btn-accion"';
             if (estado === 'solucionado') {
-                botonesHTML = `<div style="color:#10B981; font-weight:bold; font-size:13px; letter-spacing:1px; display:inline-flex; align-items:center; gap:8px;"><svg width="20" height="20" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path></svg> CASO ARCHIVADO</div>`;
+                botonesHTML = `<div style="color:#10B981; font-weight:bold; font-size:13px; display:inline-flex; align-items:center; gap:6px;">
+                    <svg width="18" height="18" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path></svg>
+                    CASO ARCHIVADO
+                </div>`;
             } else if (numCitaciones >= 3) {
                 botonesHTML = `
-                    <button class="btn-blue" style="background:linear-gradient(135deg, #EF4444, #B91C1C); border:none; font-weight:bold; box-shadow: 0 4px 15px rgba(239,68,68,0.4); text-transform:uppercase; font-size:12px; padding:10px 15px;" onclick="generarPDFAprehension('${nombre}', '${ci}')">PDF Aprehensión</button>
-                    <button style="background:linear-gradient(135deg, #10B981, #059669); border:none; font-weight:bold; color:white; padding:10px 15px; border-radius:5px; cursor:pointer; font-size:12px;" onclick="marcarSolucionado(${id})">Solucionar Caso</button>
+                    <button ${btnBase} style="background:linear-gradient(135deg,#EF4444,#B91C1C); box-shadow:0 3px 10px rgba(239,68,68,0.4);" onclick="generarPDFAprehension('${nombre}','${ci}')">PDF Aprehensión</button>
+                    <button ${btnBase} style="background:linear-gradient(135deg,#10B981,#059669);" onclick="marcarSolucionado(${id})">Solucionar</button>
                 `;
             } else {
                 botonesHTML = `
-                    <button class="btn-blue" style="font-size:12px; padding:8px 15px; font-weight:bold;" onclick="abrirModal(${id}, '${nombre}')">CITAR</button>
-                    <button class="btn-warning" onclick="generarPDFExpediente('${nombre}','${ci}','${numCitaciones}')" style="font-size:12px; padding:8px 15px; display: ${numCitaciones===0?'none':'inline-block'};">Expediente</button>
-                    <button style="background:linear-gradient(135deg, #10B981, #059669); border:none; margin-left:10px; color:white; font-weight:bold; padding:8px 15px; border-radius:5px; cursor:pointer; font-size:12px;" onclick="marcarSolucionado(${id})">Solucionar Caso</button>
+                    <button ${btnBase} style="background:linear-gradient(135deg,#2563eb,#1d4ed8);" onclick="abrirModal(${id},'${nombre}')">Citar</button>
+                    ${numCitaciones > 0 ? `<button ${btnBase} style="background:linear-gradient(135deg,#d97706,#b45309);" onclick="generarPDFExpediente('${nombre}','${ci}','${numCitaciones}')">Expediente</button>` : ''}
+                    <button ${btnBase} style="background:linear-gradient(135deg,#10B981,#059669);" onclick="marcarSolucionado(${id})">Solucionar</button>
                 `;
             }
 
             tbody.innerHTML += `
-            <tr style="${colorFila}">
+            <tr style="${colorFila}" class="fiscal-row">
                 <td style="padding:15px; font-weight:bold; letter-spacing:0.5px;">${nombre.toUpperCase()}</td>
                 <td style="padding:15px; opacity:0.8; font-family:monospace; font-size:14px;">C.I. ${ci}</td>
                 <td style="padding:15px; text-align:center;">${estadoBadge}</td>
                 <td style="padding:15px;">
-                    <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
+                    <div style="display:flex; gap:10px; align-items:center;">
                         ${botonesHTML}
                     </div>
                 </td>
