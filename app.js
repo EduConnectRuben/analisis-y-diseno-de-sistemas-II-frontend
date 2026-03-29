@@ -11,11 +11,7 @@ async function login() {
         });
         const data = await res.json();
         if (res.ok) {
-            console.log("Rol recibido:", data.rol);
-            
-            if (data.rol === 'pendiente') {
-                return alert("SU CUENTA ESTÁ PENDIENTE: El administrador debe asignarle un cargo.");
-            }
+            if (data.rol === 'pendiente') return alert("CUENTA EN ESPERA: El administrador debe aprobarlo.");
             
             document.getElementById("auth-section").style.display = "none";
             document.getElementById("btn-logout").style.display = "block";
@@ -29,9 +25,7 @@ async function login() {
                 document.getElementById("view-fiscal").style.display = "block";
                 cargarFiscalia();
             }
-        } else {
-            alert("Credenciales incorrectas");
-        }
+        } else alert("Datos incorrectos");
     } catch(e) { alert("Error de conexión"); }
 }
 
@@ -51,23 +45,25 @@ async function cargarAdmin() {
     try {
         const res = await fetch(`${API}/admin/usuarios`);
         const users = await res.json();
-        console.log("Usuarios para admin:", users);
         const tbody = document.getElementById("lista-admin");
         tbody.innerHTML = "";
         
+        if (users.length === 0) {
+            tbody.innerHTML = "<tr><td colspan='3' style='text-align:center;'>No hay otros oficiales registrados. Registre a alguien más para verlo aquí.</td></tr>";
+            return;
+        }
+
         users.forEach(u => {
-            const color = u[2] === 'pendiente' ? 'red' : (u[2] === 'policia' ? 'blue' : 'gold');
-            tbody.innerHTML += `
-                <tr>
-                    <td><b>${u[1]}</b></td>
-                    <td><span class="badge ${color}">${u[2].toUpperCase()}</span></td>
-                    <td>
-                        <button onclick="asignar(${u[0]},'policia')" class="btn-sm btn-primary">Hacer Policía</button>
-                        <button onclick="asignar(${u[0]},'fiscal')" class="btn-sm gold" style="color:white;">Hacer Fiscal</button>
-                    </td>
-                </tr>`;
+            tbody.innerHTML += `<tr>
+                <td>${u[1]}</td>
+                <td><span class="badge gray">${u[2]}</span></td>
+                <td>
+                    <button onclick="asignar(${u[0]},'policia')" class="btn-sm btn-primary">Hacer Policía</button>
+                    <button onclick="asignar(${u[0]},'fiscal')" class="btn-sm gold" style="color:white">Hacer Fiscal</button>
+                </td>
+            </tr>`;
         });
-    } catch (e) { console.error(e); }
+    } catch (e) { alert("Error al cargar lista de oficiales"); }
 }
 
 async function asignar(id, rol) {
@@ -75,7 +71,7 @@ async function asignar(id, rol) {
         method: "POST", headers: {"Content-Type": "application/json"},
         body: JSON.stringify({user_id: id, nuevo_rol: rol})
     });
-    alert("CARGO ASIGNADO");
+    alert("Cargo asignado");
     cargarAdmin();
 }
 
@@ -88,20 +84,19 @@ async function crearDenuncia() {
         method: "POST", headers: {"Content-Type": "application/json"},
         body: JSON.stringify({nombre, ci, descripcion: desc})
     });
-    generarPDF(nombre, ci, desc);
+    descargarPDF(nombre, ci, desc);
 }
 
-function generarPDF(nombre, ci, hecho) {
+function descargarPDF(nombre, ci, hecho) {
     const doc = new jsPDF();
-    const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=DENUNCIA-${ci}`;
+    const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=PD8-${ci}`;
     const img = new Image(); img.src = 'denuncia.png';
     img.onload = () => {
         doc.addImage(img, 'PNG', 10, 10, 30, 30);
-        doc.setFontSize(18); doc.text("DENUNCIA POLICIAL", 105, 25, null, null, "center");
-        doc.setFontSize(12); doc.text(`SUJETO: ${nombre}`, 20, 50);
-        doc.text(`C.I.: ${ci}`, 20, 60);
-        doc.text("HECHOS:", 20, 75);
-        doc.setFontSize(10); doc.text(hecho, 20, 85, {maxWidth: 170});
+        doc.text("ACTA DE DENUNCIA", 105, 25, null, null, "center");
+        doc.text(`Sujeto: ${nombre}`, 20, 50);
+        doc.text(`CI: ${ci}`, 20, 60);
+        doc.text(hecho, 20, 75, {maxWidth: 170});
         const qrImg = new Image(); qrImg.src = qrUrl;
         qrImg.onload = () => {
             doc.addImage(qrImg, 'PNG', 160, 10, 35, 35);
@@ -117,10 +112,7 @@ async function cargarFiscalia() {
     const tbody = document.getElementById("lista-fiscal");
     tbody.innerHTML = "";
     datos.forEach(d => {
-        tbody.innerHTML += `<tr>
-            <td>${d[1]}</td><td>${d[2]}</td>
-            <td><button onclick="abrirCita(${d[0]},'${d[1]}')" class="btn-sm gold" style="color:white;">Citar</button></td>
-        </tr>`;
+        tbody.innerHTML += `<tr><td>${d[1]}</td><td>${d[2]}</td><td><button onclick="abrirCita(${d[0]},'${d[1]}')" class="btn-sm gold" style="color:white">Citar</button></td></tr>`;
     });
 }
 
@@ -132,19 +124,15 @@ function abrirCita(id, nombre) {
 
 function generarCitacionPDF() {
     const nombre = document.getElementById("modal_nombre").value;
-    const fechaRaw = document.getElementById("modal_fecha").value;
-    const fiscal = document.getElementById("modal_fiscal").value;
-    const fecha = new Date(fechaRaw).toLocaleString();
+    const fecha = document.getElementById("modal_fecha").value;
     const doc = new jsPDF();
     const img = new Image(); img.src = 'citacion.png';
     img.onload = () => {
         doc.addImage(img, 'PNG', 160, 10, 35, 35);
         doc.text("CITACIÓN FISCAL", 105, 30, null, null, "center");
-        doc.text(`CITADO: ${nombre}`, 20, 60);
-        doc.text(`FECHA: ${fecha}`, 20, 70);
-        doc.text(`FISCAL: ${fiscal}`, 20, 80);
-        const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=CITA-${nombre}`;
-        const qrImg = new Image(); qrImg.src = qrUrl;
+        doc.text(`Citado: ${nombre}`, 20, 60);
+        doc.text(`Fecha: ${fecha}`, 20, 70);
+        const qrImg = new Image(); qrImg.src = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=CITA-${nombre}`;
         qrImg.onload = () => {
             doc.addImage(qrImg, 'PNG', 20, 100, 40, 40);
             doc.save(`Cita_${nombre}.pdf`);

@@ -1,19 +1,18 @@
-body { font-family: sans-serif; background: #cbd5e1; padding: 20px; }
+body { font-family: sans-serif; background: #94a3b8; padding: 20px; }
 .main-container { max-width: 800px; margin: 0 auto; }
-header { text-align: center; margin-bottom: 20px; }
-.card { background: white; padding: 25px; border-radius: 12px; box-shadow: 0 10px 20px rgba(0,0,0,0.15); margin-bottom: 20px; }
-input, textarea { width: 100%; padding: 12px; margin: 8px 0; border: 2px solid #94a3b8; border-radius: 8px; box-sizing: border-box; }
-button { width: 100%; padding: 14px; background: #1e3a8a; color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; }
+.card { background: white; padding: 25px; border-radius: 12px; box-shadow: 0 10px 15px rgba(0,0,0,0.2); margin-bottom: 20px; }
+input, textarea { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #ccc; border-radius: 6px; box-sizing: border-box; }
+button { width: 100%; padding: 12px; background: #1e3a8a; color: white; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; }
 .btn-primary { background: #1e3a8a; }
 .btn-secondary { background: #475569; }
 .btn-danger { background: #b91c1c; }
 .btn-sm { width: auto; font-size: 11px; padding: 6px; margin: 2px; }
-.badge { display: inline-block; padding: 4px 10px; border-radius: 4px; font-size: 11px; color: white; }
-.red { background: #dc2626; }
+.badge { display: inline-block; padding: 4px 8px; border-radius: 4px; font-size: 11px; color: white; }
+.red { background: #b91c1c; }
 .blue { background: #2563eb; }
 .gold { background: #b45309; }
+.gray { background: #64748b; }
 table { width: 100%; border-collapse: collapse; }
 th, td { text-align: left; padding: 12px; border-bottom: 1px solid #e2e8f0; }
-.modal { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.75); }
+.modal { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.7); }
 .modal-content { margin: 10% auto; max-width: 400px; }
-.modal-footer { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 15px; }

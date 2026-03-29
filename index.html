@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SISTEMA PD-8 - BOLIVIA</title>
+    <title>SISTEMA PD-8</title>
     <link rel="stylesheet" href="style.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 </head>
@@ -11,34 +11,34 @@
 
 <div class="main-container">
     <header>
-        <img src="denuncia.png" width="80" class="logo">
-        <h1>SISTEMA POLICIAL PD-8</h1>
+        <img src="denuncia.png" width="80" onerror="this.src='https://cdn-icons-png.flaticon.com/512/1022/1022213.png'">
+        <h1>SISTEMA DE GESTIÓN POLICIAL PD-8</h1>
     </header>
 
-    <!-- PANTALLA DE LOGIN -->
+    <!-- LOGIN -->
     <div id="auth-section" class="card shadow">
-        <h2>Ingreso de Personal</h2>
-        <input id="login_email" type="email" placeholder="Correo Oficial">
+        <h2>Identificación de Oficial</h2>
+        <input id="login_email" type="email" placeholder="Correo">
         <input id="login_password" type="password" placeholder="Contraseña">
-        <button class="btn-primary" onclick="login()">Entrar</button>
+        <button class="btn-primary" onclick="login()">Ingresar</button>
         <hr>
-        <p style="font-size:12px; text-align:center;">¿Nuevo oficial? Solicite cuenta:</p>
-        <input id="reg_email" placeholder="Correo">
-        <input id="reg_password" type="password" placeholder="Clave">
-        <button class="btn-secondary" onclick="registrar()">Solicitar Acceso</button>
+        <p style="font-size:12px; text-align:center;">Solicitar nueva cuenta:</p>
+        <input id="reg_email" placeholder="Nuevo Correo">
+        <input id="reg_password" type="password" placeholder="Nueva Clave">
+        <button class="btn-secondary" onclick="registrar()">Registrar Oficial</button>
     </div>
 
-    <!-- PANEL ADMIN -->
+    <!-- PANEL ADMINISTRADOR -->
     <div id="view-admin" style="display:none;" class="card shadow">
         <h2 class="badge red">MODO ADMINISTRADOR</h2>
-        <p>Aprobar y asignar cargos a oficiales:</p>
+        <p>Usuarios esperando asignación de cargo:</p>
         <div class="table-container">
             <table>
                 <thead>
                     <tr>
                         <th>Usuario</th>
-                        <th>Rango Actual</th>
-                        <th>Acción</th>
+                        <th>Rango</th>
+                        <th>Asignar</th>
                     </tr>
                 </thead>
                 <tbody id="lista-admin"></tbody>
@@ -48,22 +48,20 @@
 
     <!-- PANEL POLICÍA -->
     <div id="view-policia" style="display:none;" class="card shadow">
-        <h2 class="badge blue">MÓDULO SARGENTO: REGISTRO</h2>
+        <h2 class="badge blue">SARGENTO: REGISTRO DE DENUNCIA</h2>
         <input id="den_nombre" placeholder="Nombre Sujeto">
         <input id="den_ci" placeholder="C.I.">
-        <textarea id="den_desc" placeholder="Relato del hecho delictivo"></textarea>
-        <button class="btn-primary" onclick="crearDenuncia()">Registrar Caso y Descargar PDF</button>
+        <textarea id="den_desc" placeholder="Relato del hecho"></textarea>
+        <button class="btn-primary" onclick="crearDenuncia()">Guardar Denuncia y PDF</button>
     </div>
 
     <!-- PANEL FISCALÍA -->
     <div id="view-fiscal" style="display:none;" class="card shadow">
-        <h2 class="badge gold">MÓDULO FISCALÍA: CITACIONES</h2>
-        <div class="table-container">
-            <table>
-                <thead><tr><th>Nombre</th><th>CI</th><th>Gestión</th></tr></thead>
-                <tbody id="lista-fiscal"></tbody>
-            </table>
-        </div>
+        <h2 class="badge gold">FISCALÍA: CITACIONES</h2>
+        <table>
+            <thead><tr><th>Sujeto</th><th>CI</th><th>Acción</th></tr></thead>
+            <tbody id="lista-fiscal"></tbody>
+        </table>
     </div>
 
     <button id="btn-logout" class="btn-danger" style="display:none; margin-top:20px;" onclick="location.reload()">Cerrar Sistema</button>
@@ -76,9 +74,9 @@
         <input type="hidden" id="modal_id">
         <input id="modal_nombre" readonly class="readonly">
         <input type="datetime-local" id="modal_fecha">
-        <input id="modal_fiscal" placeholder="Nombre del Fiscal">
+        <input id="modal_fiscal" placeholder="Nombre Fiscal">
         <div class="modal-footer">
-            <button onclick="generarCitacionPDF()" class="btn-success">Generar PDF</button>
+            <button onclick="generarCitacionPDF()" style="background:green">Confirmar</button>
             <button onclick="cerrarModal()" class="btn-secondary">Cancelar</button>
         </div>
     </div>
