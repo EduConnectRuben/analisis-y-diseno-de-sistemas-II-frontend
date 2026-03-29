@@ -229,55 +229,68 @@ function generarPDFDenuncia(nombre, ci, hecho) {
 
 // FISCALIA
 async function cargarFiscalia() {
-    const res = await fetch(`${API}/denuncias?t=${Date.now()}`);
-    const datos = await res.json();
-    const tbody = document.getElementById("lista-fiscal");
-    tbody.innerHTML = "";
-    datos.forEach(d => {
-        const id = d[0], nombre = d[1], ci = d[2], desc = d[3], numCitaciones = d[4], fechaU = d[5], estado = d[6];
+    try {
+        const res = await fetch(`${API}/denuncias?t=${Date.now()}`);
+        if (!res.ok) throw new Error('Error API ' + res.status);
+        const datos = await res.json();
+        const tbody = document.getElementById("lista-fiscal");
+        tbody.innerHTML = "";
         
-        let colorFila = 'border-bottom: 1px solid rgba(255,255,255,0.05); transition: 0.3s;';
-        if (numCitaciones === 1) colorFila += 'background: linear-gradient(90deg, rgba(234, 179, 8, 0.1) 0%, transparent 50%); border-left: 4px solid #EAB308;';
-        if (numCitaciones === 2) colorFila += 'background: linear-gradient(90deg, rgba(249, 115, 22, 0.1) 0%, transparent 50%); border-left: 4px solid #F97316;';
-        if (numCitaciones >= 3) colorFila  += 'background: linear-gradient(90deg, rgba(239, 68, 68, 0.15) 0%, transparent 50%); border-left: 4px solid #EF4444;';
+        if (!datos || datos.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="4" style="text-align:center; padding:30px; color:#94a3b8;">No hay denuncias registradas en el sistema.</td></tr>`;
+            return;
+        }
         
-        let estadoBadge = `<span style="background:#1E293B; padding:5px 10px; border-radius:6px; font-size:12px; border:1px solid #334155;">${numCitaciones} Citaciones</span>`;
-        if (numCitaciones === 1) estadoBadge = `<span style="background:rgba(234, 179, 8, 0.2); border:1px solid #EAB308; padding:5px 10px; border-radius:6px; font-size:12px; font-weight:bold; color:#FDE047;">1ra Citación Oficial</span>`;
-        if (numCitaciones === 2) estadoBadge = `<span style="background:rgba(249, 115, 22, 0.2); border:1px solid #F97316; padding:5px 10px; border-radius:6px; font-size:12px; font-weight:bold; color:#FFEDD5;">2da Citación Oficial</span>`;
-        if (numCitaciones >= 3) estadoBadge  = `<span style="background:rgba(239, 68, 68, 0.2); border:1px solid #EF4444; padding:5px 10px; border-radius:6px; font-size:12px; font-weight:bold; color:#FECACA; box-shadow:0 0 10px rgba(239, 68, 68, 0.5);">ORDEN DE APREHENSIÓN HABILITADA</span>`;
-        if (estado === 'solucionado') {
-             colorFila = 'background: rgba(16, 185, 129, 0.05); border-left: 4px solid #10B981; opacity:0.8;';
-             estadoBadge = `<span style="background:rgba(16, 185, 129, 0.2); padding:5px 10px; border-radius:6px; font-size:12px; font-weight:bold; color:#A7F3D0; border:1px solid #10B981;">EXPEDIENTE CERRADO</span>`;
-        }
+        datos.forEach(d => {
+            const id = d[0], nombre = d[1], ci = d[2], desc = d[3], numCitaciones = d[4] || 0, fechaU = d[5], estado = d[6];
+            
+            let colorFila = 'border-bottom: 1px solid rgba(255,255,255,0.05); transition: 0.3s;';
+            if (numCitaciones === 1) colorFila += 'background: linear-gradient(90deg, rgba(234, 179, 8, 0.1) 0%, transparent 50%); border-left: 4px solid #EAB308;';
+            if (numCitaciones === 2) colorFila += 'background: linear-gradient(90deg, rgba(249, 115, 22, 0.1) 0%, transparent 50%); border-left: 4px solid #F97316;';
+            if (numCitaciones >= 3) colorFila  += 'background: linear-gradient(90deg, rgba(239, 68, 68, 0.15) 0%, transparent 50%); border-left: 4px solid #EF4444;';
+            
+            let estadoBadge = `<span style="background:#1E293B; padding:5px 10px; border-radius:6px; font-size:12px; border:1px solid #334155;">${numCitaciones} Citaciones</span>`;
+            if (numCitaciones === 1) estadoBadge = `<span style="background:rgba(234, 179, 8, 0.2); border:1px solid #EAB308; padding:5px 10px; border-radius:6px; font-size:12px; font-weight:bold; color:#FDE047;">1ra Citación Oficial</span>`;
+            if (numCitaciones === 2) estadoBadge = `<span style="background:rgba(249, 115, 22, 0.2); border:1px solid #F97316; padding:5px 10px; border-radius:6px; font-size:12px; font-weight:bold; color:#FFEDD5;">2da Citación Oficial</span>`;
+            if (numCitaciones >= 3) estadoBadge  = `<span style="background:rgba(239, 68, 68, 0.2); border:1px solid #EF4444; padding:5px 10px; border-radius:6px; font-size:12px; font-weight:bold; color:#FECACA; box-shadow:0 0 10px rgba(239, 68, 68, 0.5);">ORDEN DE APREHENSIÓN HABILITADA</span>`;
+            if (estado === 'solucionado') {
+                 colorFila = 'background: rgba(16, 185, 129, 0.05); border-left: 4px solid #10B981; opacity:0.8;';
+                 estadoBadge = `<span style="background:rgba(16, 185, 129, 0.2); padding:5px 10px; border-radius:6px; font-size:12px; font-weight:bold; color:#A7F3D0; border:1px solid #10B981;">EXPEDIENTE CERRADO</span>`;
+            }
 
-        let botonesHTML = '';
-        if (estado === 'solucionado') {
-            botonesHTML = `<div style="color:#10B981; font-weight:bold; font-size:13px; letter-spacing:1px; display:inline-flex; align-items:center; gap:8px;"><svg width="20" height="20" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path></svg> CASO ARCHIVADO</div>`;
-        } else if (numCitaciones >= 3) {
-            botonesHTML = `
-                <button class="btn-blue" style="background:linear-gradient(135deg, #EF4444, #B91C1C); border:none; font-weight:bold; box-shadow: 0 4px 15px rgba(239, 68, 68, 0.4); text-transform:uppercase; font-size:12px; padding:10px 15px;" onclick="generarPDFAprehension('${nombre}', '${ci}')">PDF Aprehensión</button>
-                <button style="background:linear-gradient(135deg, #10B981, #059669); border:none; font-weight:bold; color:white; padding:10px 15px; border-radius:5px; cursor:pointer; font-size:12px; box-shadow: 0 4px 15px rgba(16, 185, 129, 0.2);" onclick="marcarSolucionado(${id})">Solucionar Caso</button>
-            `;
-        } else {
-            botonesHTML = `
-                <button class="btn-blue" style="font-size:12px; padding:8px 15px; font-weight:bold;" onclick="abrirModal(${id}, '${nombre}')">CITAR</button>
-                <button class="btn-warning" onclick="generarPDFExpediente('${nombre}','${ci}','${numCitaciones}')" style="font-size:12px; padding:8px 15px; display: ${numCitaciones===0?'none':'inline-block'};">Expediente</button>
-                <button style="background:linear-gradient(135deg, #10B981, #059669); border:none; margin-left:10px; color:white; font-weight:bold; padding:8px 15px; border-radius:5px; cursor:pointer; font-size:12px;" onclick="marcarSolucionado(${id})">Solucionar Caso</button>
-            `;
-        }
+            let botonesHTML = '';
+            if (estado === 'solucionado') {
+                botonesHTML = `<div style="color:#10B981; font-weight:bold; font-size:13px; letter-spacing:1px; display:inline-flex; align-items:center; gap:8px;"><svg width="20" height="20" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path></svg> CASO ARCHIVADO</div>`;
+            } else if (numCitaciones >= 3) {
+                botonesHTML = `
+                    <button class="btn-blue" style="background:linear-gradient(135deg, #EF4444, #B91C1C); border:none; font-weight:bold; box-shadow: 0 4px 15px rgba(239,68,68,0.4); text-transform:uppercase; font-size:12px; padding:10px 15px;" onclick="generarPDFAprehension('${nombre}', '${ci}')">PDF Aprehensión</button>
+                    <button style="background:linear-gradient(135deg, #10B981, #059669); border:none; font-weight:bold; color:white; padding:10px 15px; border-radius:5px; cursor:pointer; font-size:12px;" onclick="marcarSolucionado(${id})">Solucionar Caso</button>
+                `;
+            } else {
+                botonesHTML = `
+                    <button class="btn-blue" style="font-size:12px; padding:8px 15px; font-weight:bold;" onclick="abrirModal(${id}, '${nombre}')">CITAR</button>
+                    <button class="btn-warning" onclick="generarPDFExpediente('${nombre}','${ci}','${numCitaciones}')" style="font-size:12px; padding:8px 15px; display: ${numCitaciones===0?'none':'inline-block'};">Expediente</button>
+                    <button style="background:linear-gradient(135deg, #10B981, #059669); border:none; margin-left:10px; color:white; font-weight:bold; padding:8px 15px; border-radius:5px; cursor:pointer; font-size:12px;" onclick="marcarSolucionado(${id})">Solucionar Caso</button>
+                `;
+            }
 
-        tbody.innerHTML += `
-        <tr style="${colorFila}" class="fiscal-row">
-            <td style="padding:15px; font-weight:bold; letter-spacing:0.5px;">${nombre.toUpperCase()}</td>
-            <td style="padding:15px; opacity:0.8; font-family:monospace; font-size:14px;">C.I. ${ci}</td>
-            <td style="padding:15px; text-align:center;">${estadoBadge}</td>
-            <td style="padding:15px;">
-                <div style="display:flex; gap:10px; align-items:center;">
-                    ${botonesHTML}
-                </div>
-            </td>
-        </tr>`;
-    });
+            tbody.innerHTML += `
+            <tr style="${colorFila}">
+                <td style="padding:15px; font-weight:bold; letter-spacing:0.5px;">${nombre.toUpperCase()}</td>
+                <td style="padding:15px; opacity:0.8; font-family:monospace; font-size:14px;">C.I. ${ci}</td>
+                <td style="padding:15px; text-align:center;">${estadoBadge}</td>
+                <td style="padding:15px;">
+                    <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
+                        ${botonesHTML}
+                    </div>
+                </td>
+            </tr>`;
+        });
+    } catch(e) {
+        console.error('Error cargando fiscalia:', e);
+        const tbody = document.getElementById("lista-fiscal");
+        if (tbody) tbody.innerHTML = `<tr><td colspan="4" style="text-align:center; padding:20px; color:#EF4444;">Error al cargar casos. Reintente en un momento.</td></tr>`;
+    }
 }
 
 async function marcarSolucionado(id) {
