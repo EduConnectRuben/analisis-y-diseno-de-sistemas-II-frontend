@@ -13,21 +13,23 @@ async function login() {
         if (res.ok) {
             document.getElementById("auth-section").style.display = "none";
             document.getElementById("dashboard").style.display = "block";
+            const userRole = data.rol ? data.rol : 'pendiente';
             document.getElementById("user-display").innerText = data.email;
-            document.getElementById("rol-display").innerText = data.rol.toUpperCase();
+            document.getElementById("rol-display").innerText = userRole.toUpperCase();
 
+            // Limpiar vistas
             document.getElementById("view-pendiente").style.display = "none";
             document.getElementById("view-admin").style.display = "none";
             document.getElementById("view-policia").style.display = "none";
             document.getElementById("view-fiscal").style.display = "none";
 
-            if (data.rol === 'admin') {
+            if (userRole === 'admin') {
                 document.getElementById("view-admin").style.display = "block";
                 cargarAdmin();
-            } else if (data.rol === 'policia') {
+            } else if (userRole === 'policia') {
                 document.getElementById("view-policia").style.display = "block";
                 cargarDenunciasPolicia();
-            } else if (data.rol === 'fiscal') {
+            } else if (userRole === 'fiscal') {
                 document.getElementById("view-fiscal").style.display = "block";
                 cargarFiscalia();
             } else {
@@ -190,11 +192,18 @@ function generarPDFDenuncia(nombre, ci, hecho) {
         doc.text("División de Recepción y Despacho FELCC - PD8", 105, 258, {align:'center'});
 
         const qr = `https://api.qrserver.com/v1/create-qr-code/?size=100x100&data=PD8-DEN-${ci}`;
-        const qrImg = new Image(); qrImg.src = qr;
+        const qrImg = new Image(); 
+        qrImg.crossOrigin = "Anonymous";
+        qrImg.src = qr;
         qrImg.onload = () => { 
             doc.addImage(qrImg, 'PNG', 160, 240, 30, 30); 
             doc.save(`ACTA_DENUNCIA_${ci}.pdf`); 
         };
+        qrImg.onerror = () => { doc.save(`ACTA_DENUNCIA_${ci}.pdf`); }; // Si falla la imagen, guarda igual
+    };
+    img.onerror = () => {
+        alert("No se pudo cargar el logo, pero el PDF se generó.");
+        doc.save(`ACTA_DENUNCIA_${ci}.pdf`);
     };
 }
 
@@ -247,10 +256,9 @@ async function procesarCitacion() {
                 fiscal: fiscal
             })
         });
-        if(!res.ok) throw new Error("Error en BD");
+        if(!res.ok) throw new Error("Backend devolvió error");
     } catch(e) {
-        alert("Fallo al guardar la citación en el sistema central.");
-        return;
+        alert("NOTA: Tu Backend en Render no está actualizado o está fallando. Se generará el PDF de forma local para no interrumpir el proceso.");
     }
 
     // Generar PDF Profesional de la Citación
@@ -309,13 +317,26 @@ async function procesarCitacion() {
         doc.text("FISCALÍA DE MATERIA PENAL", 105, 270, {align:'center'});
         
         const qr = `https://api.qrserver.com/v1/create-qr-code/?size=100x100&data=CITA-FISCALIA-${nombre}`;
-        const qrImg = new Image(); qrImg.src = qr;
+        const qrImg = new Image(); 
+        qrImg.crossOrigin = "Anonymous";
+        qrImg.src = qr;
         qrImg.onload = () => { 
             doc.addImage(qrImg, 'PNG', 160, 240, 30, 30); 
             doc.save(`CITACION_${nivel}_${nombre}.pdf`); 
             cerrarModal(); 
             cargarFiscalia(); // Actualizar colores y botones
         };
+        qrImg.onerror = () => {
+            doc.save(`CITACION_${nivel}_${nombre}.pdf`); 
+            cerrarModal(); 
+            cargarFiscalia();
+        };
+    };
+    img.onerror = () => {
+        alert("No se pudo cargar el logo, pero el PDF se generó.");
+        doc.save(`CITACION_${nivel}_${nombre}.pdf`); 
+        cerrarModal();
+        cargarFiscalia();
     };
 }
 
