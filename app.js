@@ -93,12 +93,17 @@ async function cargarAdmin() {
     const tbody = document.getElementById("lista-admin");
     tbody.innerHTML = "";
     users.forEach(u => {
-        tbody.innerHTML += `<tr><td>${u[1]}</td><td><span class="badge">${u[2]}</span></td><td>
-            <div class="btn-container">
-                <button onclick="asignar(${u[0]},'policia')" class="btn-blue" style="width:auto; padding:8px 15px; font-size:12px;">Sargento/Policía</button>
-                <button onclick="asignar(${u[0]},'fiscal')" class="btn-warning" style="width:auto; padding:8px 15px; font-size:12px;">Fiscal</button>
-            </div>
-        </td></tr>`;
+        tbody.innerHTML += `<tr>
+            <td style="font-size:13px; font-weight:500;">${u[1]}</td>
+            <td><span class="badge" style="background:${u[2]==='pendiente'?'#EF4444':(u[2]==='policia'?'#3B82F6':'#F59E0B')}">${u[2].toUpperCase()}</span></td>
+            <td>
+                <div class="btn-container" style="display:flex; gap:5px; justify-content:flex-start;">
+                    <button onclick="asignar(${u[0]},'policia')" class="btn-blue" style="width:auto; padding:6px 12px; font-size:11px; font-weight:bold; letter-spacing:0.5px; border-radius:4px;">Asignar Policía</button>
+                    <button onclick="asignar(${u[0]},'fiscal')" class="btn-warning" style="width:auto; padding:6px 12px; font-size:11px; font-weight:bold; letter-spacing:0.5px; border-radius:4px;">Asignar Fiscal</button>
+                    <button onclick="asignar(${u[0]},'pendiente')" style="background:#dc2626; color:white; border:none; width:auto; padding:6px 12px; font-size:11px; font-weight:bold; letter-spacing:0.5px; border-radius:4px; box-shadow:0 0 5px rgba(220,38,38,0.5); cursor:pointer;">Eliminar Cargo</button>
+                </div>
+            </td>
+        </tr>`;
     });
 }
 
