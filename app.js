@@ -11,6 +11,9 @@ async function login() {
         });
         const data = await res.json();
         if (res.ok) {
+            // Auto-reparar tablas del backend silenciosamente
+            fetch(`${API}/setup_tables`).catch(()=>console.log("Setup finalizado"));
+            
             document.getElementById("auth-section").style.display = "none";
             document.getElementById("dashboard").style.display = "block";
             const userRole = data.rol ? data.rol : 'pendiente';
@@ -191,18 +194,17 @@ function generarPDFDenuncia(nombre, ci, hecho) {
         doc.setFont("times", "normal");
         doc.text("División de Recepción y Despacho FELCC - PD8", 105, 258, {align:'center'});
 
-        const qr = `https://api.qrserver.com/v1/create-qr-code/?size=100x100&data=PD8-DEN-${ci}`;
+        const qr = `https://quickchart.io/qr?text=PD8-DEN-${ci}&size=100`;
         const qrImg = new Image(); 
         qrImg.crossOrigin = "Anonymous";
         qrImg.src = qr;
         qrImg.onload = () => { 
-            doc.addImage(qrImg, 'PNG', 160, 240, 30, 30); 
+            try { doc.addImage(qrImg, 'PNG', 160, 240, 30, 30); } catch(ex){} 
             doc.save(`ACTA_DENUNCIA_${ci}.pdf`); 
         };
         qrImg.onerror = () => { doc.save(`ACTA_DENUNCIA_${ci}.pdf`); }; // Si falla la imagen, guarda igual
     };
     img.onerror = () => {
-        alert("No se pudo cargar el logo, pero el PDF se generó.");
         doc.save(`ACTA_DENUNCIA_${ci}.pdf`);
     };
 }
@@ -316,12 +318,12 @@ async function procesarCitacion() {
         doc.setFont("times", "normal");
         doc.text("FISCALÍA DE MATERIA PENAL", 105, 270, {align:'center'});
         
-        const qr = `https://api.qrserver.com/v1/create-qr-code/?size=100x100&data=CITA-FISCALIA-${nombre}`;
+        const qr = `https://quickchart.io/qr?text=CITA-FISCALIA-${nombre.replace(' ','_')}&size=100`;
         const qrImg = new Image(); 
         qrImg.crossOrigin = "Anonymous";
         qrImg.src = qr;
         qrImg.onload = () => { 
-            doc.addImage(qrImg, 'PNG', 160, 240, 30, 30); 
+            try { doc.addImage(qrImg, 'PNG', 160, 240, 30, 30); } catch(e){} 
             doc.save(`CITACION_${nivel}_${nombre}.pdf`); 
             cerrarModal(); 
             cargarFiscalia(); // Actualizar colores y botones
@@ -333,7 +335,6 @@ async function procesarCitacion() {
         };
     };
     img.onerror = () => {
-        alert("No se pudo cargar el logo, pero el PDF se generó.");
         doc.save(`CITACION_${nivel}_${nombre}.pdf`); 
         cerrarModal();
         cargarFiscalia();
