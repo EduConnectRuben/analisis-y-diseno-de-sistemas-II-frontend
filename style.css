@@ -1,18 +1,36 @@
-body { font-family: sans-serif; background: #cbd5e1; padding: 20px; }
-.main-container { max-width: 800px; margin: 0 auto; }
-.card { background: white; padding: 25px; border-radius: 12px; box-shadow: 0 10px 20px rgba(0,0,0,0.2); margin-bottom: 20px; }
-input, textarea { width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #ccc; border-radius: 6px; box-sizing: border-box; }
-button { width: 100%; padding: 14px; background: #1e3a8a; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; }
-.btn-primary { background: #1e3a8a; }
-.btn-secondary { background: #475569; }
-.btn-danger { background: #b91c1c; }
-.btn-sm { width: auto; font-size: 11px; padding: 6px; margin: 2px; }
-.badge { display: inline-block; padding: 4px 8px; border-radius: 4px; font-size: 11px; color: white; }
-.red { background: #b91c1c; }
-.blue { background: #1e40af; }
-.gold { background: #854d0e; }
-.warning { background: #fffbeb; border-left: 10px solid #f59e0b; padding: 20px; }
-table { width: 100%; border-collapse: collapse; }
-th, td { text-align: left; padding: 12px; border-bottom: 1px solid #e2e8f0; }
-.modal { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.7); }
-.modal-content { margin: 10% auto; max-width: 400px; }
+:root { --midnight: #1e3a8a; --police-blue: #2563eb; --gold: #a16207; --danger: #b91c1c; --card-bg: #ffffff; }
+
+body { font-family: 'Segoe UI', sans-serif; background: #cbd5e1; margin: 0; padding: 20px; color: #1e293b; }
+.pro-container { max-width: 900px; margin: 0 auto; }
+
+.pro-header { text-align: center; border-bottom: 5px solid var(--midnight); padding-bottom: 15px; margin-bottom: 30px; background: white; border-radius: 10px 10px 0 0; }
+.pro-header h1 { color: var(--midnight); margin: 0; font-size: 24px; font-weight: 800; }
+
+.card { background: var(--card-bg); border-radius: 12px; padding: 0; overflow: hidden; margin-bottom: 25px; }
+.shadow { box-shadow: 0 10px 25px rgba(0,0,0,0.25); }
+.card-body { padding: 20px; }
+
+.header-blue { background: var(--police-blue); color: white; padding: 15px; font-weight: bold; }
+.header-gold { background: var(--gold); color: white; padding: 15px; font-weight: bold; }
+
+input, textarea, .pro-select { width: 100%; padding: 12px; margin: 8px 0; border: 2px solid #ddd; border-radius: 8px; box-sizing: border-box; font-size: 15px; }
+textarea { height: 100px; resize: none; }
+
+button { padding: 15px; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; transition: 0.3s; color: white; }
+.btn-main { background: var(--midnight); width: 100%; }
+.btn-sec { background: #475569; width: 100%; }
+.btn-success { background: #059669; }
+.btn-danger { background: var(--danger); }
+.btn-sm { width: auto; padding: 5px 12px; font-size: 11px; margin: 2px; }
+
+.user-status { display: flex; justify-content: space-between; padding: 10px; background: var(--midnight); color: white; border-radius: 8px; margin-bottom: 20px; }
+.badge { padding: 4px 10px; border-radius: 5px; font-size: 11px; background: white; color: var(--midnight); font-weight: bold; }
+
+.pro-table { width: 100%; border-collapse: collapse; }
+.pro-table th { background: #f1f5f9; padding: 15px; text-align: left; color: var(--midnight); font-size: 13px; }
+.pro-table td { padding: 15px; border-bottom: 1px solid #e2e8f0; font-size: 14px; }
+
+.modal { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.85); backdrop-filter: blur(5px); z-index: 1000; }
+.modal-content { margin: 5% auto; max-width: 450px; padding: 25px; }
+.modal-grid { display: grid; grid-template-columns: 1fr; }
+.modal-footer { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 20px; }
