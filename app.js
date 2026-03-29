@@ -426,36 +426,81 @@ async function procesarCitacion() {
     };
 }
 
+function generarPDFExpediente(nombre, ci, num) {
+    const doc = new jsPDF('p', 'mm', 'letter');
+    
+    // Borde perimetral para hacerlo nivel PRO
+    doc.setLineWidth(0.5);
+    doc.rect(10, 10, 196, 260);
+    // Borde interno decorativo
+    doc.setLineWidth(0.1);
+    doc.rect(11, 11, 194, 258);
+
+    const img = new Image(); img.src = 'citacion.png';
+    img.onload = () => {
+        doc.addImage(img, 'PNG', 15, 15, 25, 30);
+        doc.setFontSize(22); doc.setFont("helvetica", "bold");
+        doc.text("MINISTERIO PÚBLICO - ESTADO PLURINACIONAL", 105, 25, {align: 'center'});
+        doc.setFontSize(16); doc.text("DIRECCIÓN DE REGISTRO JUDICIAL (SINCOJ)", 105, 35, {align: 'center'});
+        doc.setFontSize(18); doc.setTextColor(30, 64, 175);
+        
+        // Caja de fondo para el título
+        doc.setFillColor(240, 240, 240);
+        doc.rect(15, 42, 186, 12, 'F');
+        doc.text("CERTIFICADO OFICIAL DE EXPEDIENTE PENAL", 105, 50, {align: 'center'});
+        
+        doc.setTextColor(0, 0, 0); 
+        doc.line(15, 58, 195, 58);
+        
+        doc.setFontSize(12); doc.setFont("helvetica", "normal");
+        const f = new Date().toLocaleDateString('es-BO', { weekday: 'long', year:'numeric', month:'long', day:'numeric' });
+        doc.text(`En estricto cumplimiento a las prerrogativas de transparencia e información dictadas por \nla Ley del Ministerio Público (Ley N° 260) y el Código de Procedimiento Penal Boliviano, \na la fecha ${f}, se expide el presente memorial de antecedentes.`, 15, 70);
+        
+        // Caja de Datos
+        doc.setFillColor(250, 250, 250);
+        doc.rect(15, 90, 186, 40, 'FD'); // Fill and Border
+        doc.setFontSize(14); doc.setFont("helvetica", "bold"); 
+        doc.text(`I. DATOS DE IDENTIFICACIÓN DEL INVESTIGADO:`, 20, 100); 
+        doc.setFontSize(12); doc.setFont("helvetica", "normal"); 
+        doc.text(`NÚMERO DE CÉDULA DE IDENTIDAD: `, 20, 110);
+        doc.setFont("helvetica", "bold"); doc.text(`${ci}`, 95, 110);
+        doc.setFont("helvetica", "normal"); doc.text(`NOMBRE COMPLETO DECLARADO:`, 20, 120);
+        doc.setFont("helvetica", "bold"); doc.text(`${nombre.toUpperCase()}`, 95, 120);
+        
+        // Caja de Situación
+        doc.setFillColor(255, 250, 240);
+        doc.rect(15, 140, 186, 35, 'FD');
+        doc.setFontSize(14); doc.setFont("helvetica", "bold"); 
+        doc.text(`II. SITUACIÓN LEGAL PROCEDIMENTAL:`, 20, 150); 
+        doc.setFontSize(12); doc.setFont("helvetica", "normal"); 
+        doc.text(`El individuo referido se encuentra en seguimiento oficial y cuenta con un total de:`, 20, 160);
+        doc.setFont("helvetica", "bold"); doc.setTextColor(220, 38, 38);
+        doc.text(`${num} CITACIONES PREVENTIVAS FORMALES EN SU CONTRA.`, 20, 170);
+        doc.setTextColor(0, 0, 0);
+        
+        doc.setFont("helvetica", "normal");
+        doc.setFontSize(10);
+        let advertenciaLegal = "NOTA DE VALIDEZ LEGAL: Este certificado consolida la información fidedigna que cursa en los registros del Sistema Nacional de Control Judicial (SINCOJ). La evasión reiterada de comparecencia habilitará mecanismos de coerción estatal.";
+        doc.text(advertenciaLegal, 15, 195, {maxWidth: 186, align: 'justify'});
+        
+        doc.line(60, 235, 150, 235);
+        doc.setFontSize(11);
+        doc.setFont("helvetica", "bold");
+        doc.text("SELLO Y VALIDACIÓN DEL SISTEMA", 105, 240, {align:'center'});
+
+        const qr = "https://quickchart.io/qr?text=EXPEDIENTE-" + ci + "&size=100";
+        const qrImg = new Image(); qrImg.crossOrigin = "Anonymous"; qrImg.src = qr;
+        qrImg.onload = () => { try { doc.addImage(qrImg, 'PNG', 160, 235, 30, 30); } catch(e){} doc.save("EXPEDIENTE_COMPLETO_" + ci + ".pdf"); };
+        qrImg.onerror = () => { doc.save("EXPEDIENTE_COMPLETO_" + ci + ".pdf"); };
+    };
+    img.onerror = () => { doc.save("EXPEDIENTE_COMPLETO_" + ci + ".pdf"); };
+}
+
 function generarReporteGralExtra(nombre, ci, numCitaciones) {
-    const doc = new jsPDF();
-    doc.setFont("times", "bold");
-    doc.text(`REPORTE GENERAL DEL EXPEDIENTE`, 105, 30, {align:'center'});
-    doc.setFont("times", "normal");
-    doc.text(`El individuo ${nombre} (CI: ${ci}) ha sido registrado en el SINCOJ y a la fecha cuenta con ${numCitaciones} citaciones emitidas formalmente. Documento oficial validado.`, 20, 50, {maxWidth: 170});
-    doc.save(`EXPEDIENTE_${ci}.pdf`);
+    generarPDFExpediente(nombre, ci, numCitaciones);
 }
 
 function descargarHistorialPDF(nombre, ci, numCitaciones) {
-    generarReporteGralExtra(nombre, ci, numCitaciones);
-}
-
-function cerrarModal() { document.getElementById("modal-citacion").style.display = "none"; }
-function generarPDFExpediente(nombre, ci, num) {
-    const doc = new jsPDF('p', 'mm', 'letter');
-    const img = new Image(); img.src = 'citacion.png';
-    img.onload = () => {
-        doc.addImage(img, 'PNG', 15, 10, 25, 30);
-        doc.setFontSize(22); doc.setFont("helvetica", "bold");
-        doc.text("SISTEMA REGIONAL DE CONTROL JUDICIAL", 105, 25, {align: 'center'});
-        doc.setFontSize(16); doc.text("HOJA DE EXPEDIENTE PENAL", 105, 35, {align: 'center'});
-        doc.line(15, 45, 195, 45);
-        doc.setFontSize(12); doc.setFont("helvetica", "normal");
-        doc.text("El individuo " + nombre.toUpperCase() + " (CI: " + ci + ") ha sido registrado en el SINCOJ y a la fecha cuenta con " + num + " citaciones procesadas en su contra.", 15, 60, {maxWidth: 180, align: 'justify', lineHeightFactor: 1.5});
-        const qr = "https://quickchart.io/qr?text=EXPEDIENTE-" + ci + "&size=100";
-        const qrImg = new Image(); qrImg.crossOrigin = "Anonymous"; qrImg.src = qr;
-        qrImg.onload = () => { try { doc.addImage(qrImg, 'PNG', 160, 240, 30, 30); } catch(e){} doc.save("EXPEDIENTE_" + ci + ".pdf"); };
-        qrImg.onerror = () => { doc.save("EXPEDIENTE_" + ci + ".pdf"); };
-    };
-    img.onerror = () => { doc.save("EXPEDIENTE_" + ci + ".pdf"); };
+    generarPDFExpediente(nombre, ci, numCitaciones);
 }
 
