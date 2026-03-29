@@ -72,13 +72,13 @@ async function registrar() {
         
         btn.innerText = "REGISTRAR";
         
-        if (res.ok) {
+        if (res.ok && data.ok) {
             alert("✅ Registro exitoso. Comunícate con el Administrador para que asigne tu acceso.");
             document.getElementById("reg_email").value = "";
             document.getElementById("reg_password").value = "";
         } else {
             if(data.error === "correo_existe") alert("⚠️ Este correo ya está registrado en el SINCOJ.");
-            else alert("Error interno de red.");
+            else alert("Error interno de red: " + (data.error || ""));
         }
     } catch(e) {
         alert("Error de conexión con el servidor principal.");
