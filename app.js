@@ -1,9 +1,11 @@
 const API = "https://analisis-y-diseno-de-sistemas-2-backend.onrender.com";
 const { jsPDF } = window.jspdf;
 
+// --- LOGIN Y REGISTRO ---
 async function login() {
     const email = document.getElementById("login_email").value.trim().toLowerCase();
     const password = document.getElementById("login_password").value;
+
     try {
         const res = await fetch(`${API}/login`, {
             method: "POST",
@@ -16,7 +18,7 @@ async function login() {
             document.getElementById("dashboard").style.display = "block";
             listarDenuncias();
         } else {
-            alert("Usuario o clave incorrecta");
+            alert("Credenciales incorrectas");
         }
     } catch(e) { alert("Error de conexión"); }
 }
@@ -35,6 +37,7 @@ async function registrar() {
     } catch(e) { alert("Error de conexión"); }
 }
 
+// --- DENUNCIAS ---
 async function crearDenuncia() {
     const nombre = document.getElementById("den_nombre").value;
     const ci = document.getElementById("den_ci").value;
@@ -81,27 +84,45 @@ async function listarDenuncias() {
     } catch(e) { console.error("Error al listar:", e); }
 }
 
+// --- MODAL Y CITACIONES ---
+function emitirCitacion(id, nombre) {
+    document.getElementById("modal_denuncia_id").value = id;
+    document.getElementById("modal_nombre").value = nombre;
+    document.getElementById("modal-citacion").style.display = "block";
+}
+
+function cerrarModal() {
+    document.getElementById("modal-citacion").style.display = "none";
+}
+
+async function guardarCitacion() {
+    const id = document.getElementById("modal_denuncia_id").value;
+    const fechaRaw = document.getElementById("modal_fecha").value;
+    const fiscal = document.getElementById("modal_fiscal").value;
+
+    if(!fechaRaw || !fiscal) return alert("Llene los datos de la cita");
+
+    const fecha = new Date(fechaRaw).toLocaleString();
+
+    await fetch(`${API}/citaciones`, {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({denuncia_id: parseInt(id), fecha, fiscal})
+    });
+    alert("Citación emitida para " + document.getElementById("modal_nombre").value);
+    cerrarModal();
+}
+
+// --- PDF ---
 function descargarPDF(nombre, ci, hecho) {
     const doc = new jsPDF();
     doc.setFontSize(18);
     doc.text("ORDEN DE CAPTURA - DISTRITO PD8", 105, 20, null, null, "center");
     doc.setFontSize(12);
-    doc.text(`SUJETO: ${nombre}`, 20, 40);
-    doc.text(`C.I.: ${ci}`, 20, 50);
-    doc.text(`MOTIVO: ${hecho}`, 20, 60, {maxWidth: 170});
-    doc.text("FIRMA FISCALÍA:", 20, 120);
+    doc.text(`NOMBRE DEL SUJETO: ${nombre}`, 20, 40);
+    doc.text(`CI: ${ci}`, 20, 50);
+    doc.text(`HECHOS: ${hecho}`, 20, 60, {maxWidth: 170});
+    doc.text("------------------------------------------", 20, 100);
+    doc.text("FIRMA FISCALÍA DE TURNO", 20, 110);
     doc.save(`Orden_${ci}.pdf`);
-}
-
-async function emitirCitacion(id, nombre) {
-    const fecha = prompt("Fecha y hora de la cita:");
-    const fiscal = prompt("Nombre del Fiscal:");
-    if(!fecha || !fiscal) return;
-
-    await fetch(`${API}/citaciones`, {
-        method: "POST",
-        headers: {"Content-Type": "application/json"},
-        body: JSON.stringify({denuncia_id: id, fecha, fiscal})
-    });
-    alert("Citación emitida para " + nombre);
 }
