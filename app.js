@@ -76,9 +76,14 @@ async function cargarAdmin() {
 }
 
 async function asignar(id, rol) {
-    await fetch(`${API}/admin/asignar?user_id=${id}&rol=${rol}`, {method: "POST"});
-    alert(`Cargo ${rol.toUpperCase()} asignado correctamente.`);
-    cargarAdmin();
+    try {
+        const res = await fetch(`${API}/admin/asignar?user_id=${id}&rol=${rol}`, {method: "POST"});
+        if (!res.ok) throw new Error("Error interno del servidor");
+        alert(`Cargo ${rol.toUpperCase()} asignado correctamente.`);
+        cargarAdmin();
+    } catch(e) {
+        alert("Error: El backend no pudo procesar la asignación de cargo.");
+    }
 }
 
 function getEstadoClase(numCitaciones) {
@@ -153,29 +158,36 @@ function generarPDFDenuncia(nombre, ci, hecho) {
         
         const fechaActual = new Date().toLocaleDateString('es-BO', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute:'2-digit' });
 
-        let intro = `En la ciudad y División PD-8 de la Fuerza Especial de Lucha contra el Crimen, a fecha ${fechaActual}, se hace presente el oficial de turno para registrar de manera formal la presente denuncia mediante el Sistema Único de Control (SINCOJ).`;
+        let intro = `En la ciudad y División PD-8 de la Fuerza Especial de Lucha contra el Crimen (FELCC), a fecha ${fechaActual}, se hace presente el oficial de turno para registrar de manera formal y bajo juramento de ley la presente acta de denuncia, mediante el Sistema Único de Control (SINCOJ).`;
         doc.text(intro, 20, 70, {maxWidth: 170, align:'justify', lineHeightFactor: 1.5});
 
         doc.setFont("times", "bold");
-        doc.text(`SOBRE EL SUJETO DENUNCIADO:`, 20, 95);
+        doc.text(`I. DATOS DEL DENUNCIADO:`, 20, 95);
         doc.setFont("times", "normal");
         doc.text(`NOMBRE COMPLETO: ${nombre.toUpperCase()}`, 20, 105);
-        doc.text(`NÚMERO DE IDENTIDAD (C.I.): ${ci}`, 20, 115);
+        doc.text(`CÉDULA DE IDENTIDAD (C.I.): ${ci}`, 20, 115);
+        doc.text(`ESTADO DE PROCEDIMIENTO: En etapa preliminar de investigación táctica.`, 20, 125);
         
         doc.setFont("times", "bold");
-        doc.text(`RELACIÓN CIRCUNSTANCIADA DE LOS HECHOS:`, 20, 135);
+        doc.text(`II. RELACIÓN CIRCUNSTANCIADA DE LOS HECHOS:`, 20, 140);
         doc.setFont("times", "normal");
-        doc.text(hecho, 20, 145, {maxWidth: 170, align:'justify', lineHeightFactor: 1.5});
+        doc.text(hecho, 20, 150, {maxWidth: 170, align:'justify', lineHeightFactor: 1.5});
 
-        // Artículo legal
-        doc.setFontSize(9);
-        doc.text(`*De conformidad a lo establecido en los Arts. 284 y 285 del Código de Procedimiento Penal Boliviano (Ley 1970), se eleva la constancia para los fines investigativos bajo tuición del Ministerio Público.`, 20, 200, {maxWidth: 170, align:'justify'});
+        // Artículo legal extendido
+        doc.setFont("times", "bold");
+        doc.text(`III. FUNDAMENTACIÓN LEGAL JURÍDICA:`, 20, 175);
+        doc.setFont("times", "normal");
+        doc.setFontSize(10);
+        let fundamentos = `El presente documento tiene pleno valor legal probatorio. De conformidad a lo estipulado en los Arts. 284 (Denuncia), 285 (Forma y Contenido) y siguientes del Código de Procedimiento Penal Boliviano (Ley N° 1970), y en concordancia con los principios constitucionales que rigen nuestro Estado, se eleva la presente constancia para los fines procesales, investigativos, tácticos y periciales subsecuentes, bajo tuición, control y conocimiento del Ministerio Público. Cualquier alteración de este documento público pena conforme al Art. 198 del Código Penal.`;
+        doc.text(fundamentos, 20, 185, {maxWidth: 170, align:'justify', lineHeightFactor: 1.5});
         
         // Firmas y código QR
-        doc.line(70, 250, 140, 250);
+        doc.line(70, 245, 140, 245);
         doc.setFontSize(10);
-        doc.text("F I R M A  Y  S E L L O", 105, 258, {align:'center'});
-        doc.text("UNIDAD DE RECEPCIÓN Y DESPACHO PD-8", 105, 263, {align:'center'});
+        doc.setFont("times", "bold");
+        doc.text("F I R M A  Y  S E L L O  P O L I C I A L", 105, 253, {align:'center'});
+        doc.setFont("times", "normal");
+        doc.text("División de Recepción y Despacho FELCC - PD8", 105, 258, {align:'center'});
 
         const qr = `https://api.qrserver.com/v1/create-qr-code/?size=100x100&data=PD8-DEN-${ci}`;
         const qrImg = new Image(); qrImg.src = qr;
@@ -261,28 +273,40 @@ async function procesarCitacion() {
         doc.setFont("times", "normal");
         doc.setFontSize(12);
         
-        let citaText = `En estricto cumplimiento y ejercicio de las atribuciones conferidas por la Constitución y la Ley Orgánica del Ministerio Público (Ley N° 260), la autoridad fiscal asignada:`;
+        let citaText = `Dentro del proceso de seguimiento e investigación penal a cargo de este Despacho Fiscal, en estricto cumplimiento y ejercicio de las atribuciones conferidas por la Constitución Política del Estado, y la Ley Orgánica del Ministerio Público (Ley N° 260), la autoridad que suscribe:`;
         doc.text(citaText, 20, 80, {maxWidth:170, align:'justify', lineHeightFactor: 1.5});
 
         doc.setFont("times", "bold");
-        doc.text(`FISCAL A CARGO: ${fiscal.toUpperCase()}`, 20, 100);
-        
+        doc.text(`I. AUTORIDAD REQUIRENTE (FISCALÍA):`, 20, 100);
         doc.setFont("times", "normal");
-        let mandato = `MANDA Y ORDENA a cualquier Autoridad Policial hábil e Investigador Asignado al Caso o Funcionario Público para que requiera la COMPARECENCIA INMEDIATA del(la) ciudadano(a):`;
-        doc.text(mandato, 20, 115, {maxWidth:170, align:'justify', lineHeightFactor: 1.5});
+        doc.text(`FISCAL A CARGO: Abg. ${fiscal.toUpperCase()}`, 20, 110);
+        
+        doc.setFont("times", "bold");
+        doc.text(`II. MANDATO DE LEY:`, 20, 125);
+        doc.setFont("times", "normal");
+        let mandato = `POR CUANTO: MANDA Y ORDENA a cualquier Autoridad Policial hábil, asignada al caso, Escuadrón Táctico Especial o Funcionario del Estado para que, con las formalidades de ley, se requiera y efectivice la COMPARECENCIA INMEDIATA Y OBLIGATORIA del (la) ciudadano (a):`;
+        doc.text(mandato, 20, 135, {maxWidth:170, align:'justify', lineHeightFactor: 1.5});
 
         doc.setFont("times", "bold");
-        doc.text(`NOMBRE DEL CITADO: ${nombre.toUpperCase()}`, 20, 135);
+        doc.text(`NOMBRE DEL CITADO: ${nombre.toUpperCase()}`, 20, 158);
         
         doc.setFont("times", "normal");
-        doc.text(`FECHA DE PRESENTACIÓN: ${new Date(fecha).toLocaleString('es-BO')}`, 20, 150);
-        doc.text(`LUGAR DE PRESENTACIÓN: Instalaciones Fiscalía PD-8.`, 20, 160);
+        doc.text(`FECHA EXACTA DE PRESENTACIÓN: ${new Date(fecha).toLocaleString('es-BO')}`, 20, 168);
+        doc.text(`LUGAR DE DECLARACIÓN: Instalaciones principales de la Fiscalía y Área Especial PD-8.`, 20, 178);
 
+        doc.setFont("times", "bold");
+        doc.text(`III. CONMINATORIAS Y APERCIBIMIENTOS DE LEY:`, 20, 195);
+        doc.setFont("times", "normal");
         doc.setFontSize(11);
-        doc.text(`ADVERTENCIA LEGAL: En caso de incomparecencia injustificada en la fecha y hora señalada legalmente, y al tratarse de un requerimiento dentro del marco del proceso penal, de conformidad a los Arts. 224 y siguientes del CPP Boliviano, se expedirá de forma inmediata ORDEN DE APREHENSIÓN en contra del renuente para asegurar su presencia física.`, 20, 180, {maxWidth: 170, align:'justify', lineHeightFactor: 1.3});
+        let advertencia = `ADVERTENCIA JURÍDICA SEVERA: El presente citatorio obedece a un mandato legal emitido por autoridad competente en materia penal. En el hipotético caso de incomparecencia injustificada en la fecha, hora y lugar señalados precedentemente, y al tratarse de un requerimiento legal formal, de conformidad con lo estatuido expresa y terminantemente por el Art. 224 y concordantes del Código de Procedimiento Penal Boliviano (Ley 1970), se expedirá de forma directa e incontestable MANDAMIENTO DE APREHENSIÓN en contra del sujeto renuente, a objeto de asegurar su presencia física ante esta misma autoridad, el Juez y el sistema de justicia.`;
+        doc.text(advertencia, 20, 205, {maxWidth: 170, align:'justify', lineHeightFactor: 1.4});
         
-        doc.line(70, 250, 140, 250);
-        doc.text("Firma o Sello Fiscal", 105, 255, {align:'center'});
+        doc.line(70, 260, 140, 260);
+        doc.setFontSize(10);
+        doc.setFont("times", "bold");
+        doc.text("F I R M A   Y   S E L L O   F I S C A L", 105, 265, {align:'center'});
+        doc.setFont("times", "normal");
+        doc.text("FISCALÍA DE MATERIA PENAL", 105, 270, {align:'center'});
         
         const qr = `https://api.qrserver.com/v1/create-qr-code/?size=100x100&data=CITA-FISCALIA-${nombre}`;
         const qrImg = new Image(); qrImg.src = qr;
