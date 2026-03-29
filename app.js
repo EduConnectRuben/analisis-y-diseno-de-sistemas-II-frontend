@@ -118,8 +118,9 @@ async function asignar(id, rol) {
     }
 }
 
-function getEstadoClase(numCitaciones) {
-    if(!numCitaciones || numCitaciones === 0) return {class: "row-normal", text: "Registrado", badge: "0 Citaciones"};
+function getEstadoClase(numCitaciones, estado = 'activo') {
+    if (estado === 'solucionado') return {class: "row-green", text: "Caso Cerrado", badge: "RESUELTO / CERRADO"};
+    if(!numCitaciones || numCitaciones === 0) return {class: "row-normal", text: "Proceso Iniciado", badge: "0 Citaciones"};
     if(numCitaciones === 1) return {class: "row-yellow", text: "Alerta Nivel 1", badge: "1ra Citación"};
     if(numCitaciones === 2) return {class: "row-orange", text: "Alerta Nivel 2", badge: "2da Citación"};
     return {class: "row-red", text: "Riesgo de Aprehensión", badge: `${numCitaciones} Citaciones`};
@@ -147,26 +148,52 @@ async function procesarDenuncia() {
 }
 
 async function cargarDenunciasPolicia(filtro = '') {
-    const res = await fetch(`${API}/denuncias?t=${Date.now()}`);
-    let datos = await res.json();
-    const tbody = document.getElementById("lista-denuncias-policia");
-    tbody.innerHTML = "";
-    datos.forEach(d => {
-        // d: [id, nombre, ci, descripcion, num_citaciones, ultima_fecha]
-        const count = d[4] || 0;
-        const e = getEstadoClase(count);
-        tbody.innerHTML += `<tr class="${e.class}">
-            <td><strong>${d[1]}</strong></td>
-            <td>C.I. ${d[2]}</td>
-            <td><span class="status-badge status">${e.badge}</span><br><small style="color:#94a3b8;font-size:10px;">${e.text}</small></td>
-            <td>
-                <div class="btn-container">
-                    <button onclick="generarPDFDenuncia('${d[1]}','${d[2]}','${d[3].replace(/'/g,"\\'").replace(/\n/g," ")}')" class="btn-green">Acta Denuncia</button>
-                    ${count > 0 ? `<button onclick="descargarHistorialPDF('${d[1]}','${d[2]}', ${count})" class="btn-red" style="width:auto!important; padding:8px; font-size:12px;">Reporte PDF</button>` : ''}
-                </div>
-            </td>
-        </tr>`;
-    });
+    try {
+        const res = await fetch(`${API}/denuncias?t=${Date.now()}`);
+        if (!res.ok) throw new Error('Error API');
+        let datos = await res.json();
+        const tbody = document.getElementById("lista-denuncias-policia");
+        if (!tbody) return;
+        tbody.innerHTML = "";
+
+        if (!datos || datos.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="4" style="text-align:center; padding:30px; color:#94a3b8;">No hay denuncias registradas.</td></tr>`;
+            return;
+        }
+
+        datos.forEach(d => {
+            // d: [id, nombre, ci, descripcion, num_citaciones, ultima_fecha, estado]
+            const count = d[4] || 0;
+            const estado = d[6] || 'activo';
+            const e = getEstadoClase(count, estado);
+            const descSegura = (d[3] || "").replace(/'/g,"\\'").replace(/\n/g," ");
+            
+            let colorInsignia = "#1E293B"; // Dark default
+            if (estado === 'solucionado') colorInsignia = "#10B981"; // Green
+            else if (count === 1) colorInsignia = "#EAB308"; // Yellow
+            else if (count === 2) colorInsignia = "#F97316"; // Orange
+            else if (count >= 3) colorInsignia = "#EF4444"; // Red
+
+            tbody.innerHTML += `<tr class="${e.class}">
+                <td style="padding:15px;"><strong>${(d[1] || "").toUpperCase()}</strong></td>
+                <td style="padding:15px; opacity:0.8;">C.I. ${d[2]}</td>
+                <td style="padding:15px; text-align:center;">
+                    <span class="status-badge" style="background:${colorInsignia}33; color:${colorInsignia}; border:1px solid ${colorInsignia}; padding:4px 10px; border-radius:6px; font-weight:bold; font-size:11px;">
+                        ${e.badge}
+                    </span>
+                    <br><small style="color:#94a3b8; font-size:10px; margin-top:4px; display:block;">${e.text}</small>
+                </td>
+                <td style="padding:15px;">
+                    <div style="display:flex; gap:8px; align-items:center;">
+                        <button onclick="generarPDFDenuncia('${d[1]}','${d[2]}','${descSegura}')" class="btn-accion" style="background:linear-gradient(135deg,#16a34a,#15803d);">Acta</button>
+                        ${count > 0 ? `<button onclick="generarPDFExpediente('${d[1]}','${d[2]}', ${count})" class="btn-accion" style="background:linear-gradient(135deg,#dc2626,#b91c1c);">Reporte</button>` : ''}
+                    </div>
+                </td>
+            </tr>`;
+        });
+    } catch(e) {
+        console.error("Error cargando denuncias policia:", e);
+    }
 }
 
 function generarPDFDenuncia(nombre, ci, hecho) {
