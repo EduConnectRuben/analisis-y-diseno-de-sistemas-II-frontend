@@ -20,25 +20,37 @@ async function login() {
             document.getElementById("user-display").innerText = data.email;
             document.getElementById("rol-display").innerText = userRole.toUpperCase();
 
-            // Limpiar vistas
             document.getElementById("view-pendiente").style.display = "none";
             document.getElementById("view-admin").style.display = "none";
             document.getElementById("view-policia").style.display = "none";
             document.getElementById("view-fiscal").style.display = "none";
 
+            const sysTitle = document.getElementById("sys-title");
+            const sysSub = document.getElementById("sys-subtitle");
+
             if (userRole === 'admin') {
+                if(sysTitle) sysTitle.innerText = "PANEL DE ADMINISTRACIÓN";
+                if(sysSub) sysSub.innerText = "SISTEMA DE CONTROL DE OFICIALES";
                 document.getElementById("view-admin").style.display = "block";
                 cargarAdmin();
             } else if (userRole === 'policia') {
+                if(sysTitle) sysTitle.innerText = "SISTEMA POLICIAL OFICIAL";
+                if(sysSub) sysSub.innerText = "FUERZA ESPECIAL DE LUCHA CONTRA EL CRIMEN";
                 document.getElementById("view-policia").style.display = "block";
                 cargarDenunciasPolicia();
             } else if (userRole === 'fiscal') {
+                if(sysTitle) sysTitle.innerText = "MINISTERIO PÚBLICO";
+                if(sysSub) sysSub.innerText = "FISCALÍA DE MATERIA PENAL";
                 document.getElementById("view-fiscal").style.display = "block";
                 cargarFiscalia();
             } else {
+                if(sysTitle) sysTitle.innerText = "ACCESO RESTRINGIDO";
+                if(sysSub) sysSub.innerText = "VERIFICANDO CREDENCIALES";
                 document.getElementById("view-pendiente").style.display = "block";
             }
-        } else alert("Credenciales Incorrectas");
+        } else {
+            alert("Credenciales incorrectas");
+        }
     } catch(e) { alert("Servidor no responde o está en mantenimiento."); }
 }
 
@@ -54,10 +66,20 @@ async function registrar() {
     try {
         const res = await fetch(`${API}/registro`, {
             method: "POST", headers: {"Content-Type": "application/json"},
-            body: JSON.stringify({email, password})
+            body: JSON.stringify({email: email, password: password})
         });
-        if(res.ok) alert("Solicitud enviada al Administrador. Espere a que asigne su rango.");
-        else alert("Usuario ya existe o error en la solicitud.");
+        const data = await res.json();
+        
+        btn.innerText = "REGISTRAR";
+        
+        if (res.ok) {
+            alert("✅ Registro exitoso. Comunícate con el Administrador para que asigne tu acceso.");
+            document.getElementById("reg_email").value = "";
+            document.getElementById("reg_password").value = "";
+        } else {
+            if(data.error === "correo_existe") alert("⚠️ Este correo ya está registrado en el SINCOJ.");
+            else alert("Error interno de red.");
+        }
     } catch(e) {
         alert("Error de conexión con el servidor principal.");
     }
@@ -162,37 +184,28 @@ function generarPDFDenuncia(nombre, ci, hecho) {
         doc.setFontSize(11);
         
         const fechaActual = new Date().toLocaleDateString('es-BO', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute:'2-digit' });
-
-        let intro = `En la ciudad y División PD-8 de la Fuerza Especial de Lucha contra el Crimen (FELCC), a fecha ${fechaActual}, se hace presente el oficial de turno para registrar de manera formal y bajo juramento de ley la presente acta de denuncia, mediante el Sistema Único de Control (SINCOJ).`;
-        doc.text(intro, 20, 70, {maxWidth: 170, align:'justify', lineHeightFactor: 1.5});
-
-        doc.setFont("times", "bold");
-        doc.text(`I. DATOS DEL DENUNCIADO:`, 20, 95);
-        doc.setFont("times", "normal");
-        doc.text(`NOMBRE COMPLETO: ${nombre.toUpperCase()}`, 20, 105);
-        doc.text(`CÉDULA DE IDENTIDAD (C.I.): ${ci}`, 20, 115);
-        doc.text(`ESTADO DE PROCEDIMIENTO: En etapa preliminar de investigación táctica.`, 20, 125);
         
-        doc.setFont("times", "bold");
-        doc.text(`II. RELACIÓN CIRCUNSTANCIADA DE LOS HECHOS:`, 20, 140);
-        doc.setFont("times", "normal");
-        doc.text(hecho, 20, 150, {maxWidth: 170, align:'justify', lineHeightFactor: 1.5});
-
-        // Artículo legal extendido
-        doc.setFont("times", "bold");
-        doc.text(`III. FUNDAMENTACIÓN LEGAL JURÍDICA:`, 20, 175);
-        doc.setFont("times", "normal");
-        doc.setFontSize(10);
-        let fundamentos = `El presente documento tiene pleno valor legal probatorio. De conformidad a lo estipulado en los Arts. 284 (Denuncia), 285 (Forma y Contenido) y siguientes del Código de Procedimiento Penal Boliviano (Ley N° 1970), y en concordancia con los principios constitucionales que rigen nuestro Estado, se eleva la presente constancia para los fines procesales, investigativos, tácticos y periciales subsecuentes, bajo tuición, control y conocimiento del Ministerio Público. Cualquier alteración de este documento público pena conforme al Art. 198 del Código Penal.`;
-        doc.text(fundamentos, 20, 185, {maxWidth: 170, align:'justify', lineHeightFactor: 1.5});
+        doc.text("En las instalaciones de la FELCC, Distrito 8, en fecha y hora detalladas:", 15, 65, {maxWidth: 180});
+        doc.setFont("times", "bold"); doc.text(`${fechaActual}`, 15, 72);
         
-        // Firmas y código QR
-        doc.line(70, 245, 140, 245);
-        doc.setFontSize(10);
-        doc.setFont("times", "bold");
-        doc.text("F I R M A  Y  S E L L O  P O L I C I A L", 105, 253, {align:'center'});
         doc.setFont("times", "normal");
-        doc.text("División de Recepción y Despacho FELCC - PD8", 105, 258, {align:'center'});
+        doc.text("En virtud a las atribuciones conferidas por la Constitución Política del Estado Plurinacional de Bolivia y la Ley Orgánica de la Policía Boliviana, se procesa la denuncia en contra de:", 15, 82, {maxWidth: 180, align: 'justify'});
+        doc.text(`El/La ciudadano(a) C.I.: `, 15, 95);
+        doc.setFont("times", "bold"); doc.text(`${ci}`, 60, 95); doc.setFont("times", "normal");
+        doc.text(`Identificado bajo el nombre de: `, 15, 102);
+        doc.setFont("times", "bold"); doc.text(`${nombre.toUpperCase()}`, 75, 102);
+        
+        doc.setFont("times", "bold"); doc.text("HECHO DENUNCIADO:", 15, 115);
+        doc.setFont("times", "normal");
+        doc.text(`"${hecho}"`, 15, 122, {maxWidth: 180, align: 'justify'});
+        
+        doc.text("Se remiten todos los antecedentes documentales al Ministerio Público para que asuma competencia y emita las directrices investigativas conforme al Art. 277 de la Ley 1970 del Código de Procedimiento Penal Boliviano.", 15, 145, {maxWidth: 180, align: 'justify'});
+        doc.text("Cualquier obstrucción o desobediencia al llamado de la autoridad fiscal derivará en los agravantes estipulados por Ley, habilitando la respectiva Orden de Aprehensión inmediata transcurridas las citaciones por norma.", 15, 160, {maxWidth: 180, align: 'justify'});
+        
+        doc.line(60, 225, 150, 225);
+        doc.setFontSize(10);
+        doc.text("Firma de Sello Oficial Uniformado", 105, 230, {align:'center'});
+        doc.setFont("times", "normal");
 
         const qr = `https://quickchart.io/qr?text=PD8-DEN-${ci}&size=100`;
         const qrImg = new Image(); 
@@ -202,7 +215,7 @@ function generarPDFDenuncia(nombre, ci, hecho) {
             try { doc.addImage(qrImg, 'PNG', 160, 240, 30, 30); } catch(ex){} 
             doc.save(`ACTA_DENUNCIA_${ci}.pdf`); 
         };
-        qrImg.onerror = () => { doc.save(`ACTA_DENUNCIA_${ci}.pdf`); }; // Si falla la imagen, guarda igual
+        qrImg.onerror = () => { doc.save(`ACTA_DENUNCIA_${ci}.pdf`); };
     };
     img.onerror = () => {
         doc.save(`ACTA_DENUNCIA_${ci}.pdf`);
@@ -216,23 +229,95 @@ async function cargarFiscalia() {
     const tbody = document.getElementById("lista-fiscal");
     tbody.innerHTML = "";
     datos.forEach(d => {
-        const count = d[4] || 0;
-        const e = getEstadoClase(count);
-        tbody.innerHTML += `<tr class="${e.class}">
-            <td><strong>${d[1]}</strong></td>
-            <td>C.I. ${d[2]}</td>
-            <td><span class="status-badge status">${e.badge}</span></td>
+        const id = d[0], nombre = d[1], ci = d[2], desc = d[3], numCitaciones = d[4], fechaU = d[5], estado = d[6];
+        
+        let colorFila = '';
+        if (numCitaciones === 1) colorFila = 'background: rgba(234, 179, 8, 0.1); border-left: 4px solid #EAB308;';
+        if (numCitaciones === 2) colorFila = 'background: rgba(249, 115, 22, 0.1); border-left: 4px solid #F97316;';
+        if (numCitaciones >= 3) colorFila  = 'background: rgba(239, 68, 68, 0.1); border-left: 4px solid #EF4444;';
+        
+        let estadoBadge = `<span style="background:#1E293B; padding:5px; border-radius:5px; font-size:12px;">${numCitaciones} Citaciones</span>`;
+        if (numCitaciones === 1) estadoBadge = `<span style="background:#EAB308; padding:5px; border-radius:5px; font-size:12px; font-weight:bold; color:black;">1ra Citación</span>`;
+        if (numCitaciones === 2) estadoBadge = `<span style="background:#F97316; padding:5px; border-radius:5px; font-size:12px; font-weight:bold; color:white;">2da Citación</span>`;
+        if (numCitaciones >= 3) estadoBadge  = `<span style="background:#EF4444; padding:5px; border-radius:5px; font-size:12px; font-weight:bold; color:white;">APREHENSIÓN</span>`;
+        if (estado === 'solucionado') {
+             colorFila = 'background: rgba(16, 185, 129, 0.1); border-left: 4px solid #10B981;';
+             estadoBadge = `<span style="background:#10B981; padding:5px; border-radius:5px; font-size:12px; font-weight:bold; color:white;">CASO CERRADO</span>`;
+        }
+
+        let botonesHTML = '';
+        if (estado === 'solucionado') {
+            botonesHTML = `CASO CERRADO EXitosamente`;
+        } else if (numCitaciones >= 3) {
+            botonesHTML = `
+                <button class="btn-blue" style="background:#EF4444; box-shadow: 0 0 10px #EF4444;" onclick="generarPDFAprehension('${nombre}', '${ci}')">PDF APREHENSIÓN</button>
+                <button style="background-color:#10B981; border:none; color:white; padding:10px 15px; border-radius:5px; cursor:pointer;" onclick="marcarSolucionado(${id})">Solucionar Caso</button>
+            `;
+        } else {
+            botonesHTML = `
+                <button class="btn-blue" onclick="abrirModal(${id}, '${nombre}')">ACTUAR / CITAR</button>
+                <button class="btn-warning" onclick="generarPDFExpediente('${nombre}','${ci}','${numCitaciones}')" style="display: ${numCitaciones===0?'none':'inline-block'};">PDF Exp.</button>
+                <button style="background-color:#10B981; border:none; margin-left:10px; color:white; padding:10px 15px; border-radius:5px; cursor:pointer;" onclick="marcarSolucionado(${id})">Solucionar Caso</button>
+            `;
+        }
+
+        tbody.innerHTML += `
+        <tr style="${colorFila}">
+            <td style="font-weight:bold;">${nombre}</td>
+            <td style="opacity:0.8;">C.I. ${ci}</td>
+            <td style="text-align:center;">${estadoBadge}</td>
             <td>
-                <div class="btn-container">
-                    <button onclick="abrirCita(${d[0]},'${d[1]}')" class="btn-blue" style="width:auto; padding:8px 15px;">ACTUAR / CITAR</button>
-                    ${count > 0 ? `<button onclick="descargarHistorialPDF('${d[1]}','${d[2]}', ${count})" class="btn-gray" style="width:auto; padding:8px;">PDF Exp.</button>` : ''}
+                <div style="display:flex; gap:10px;">
+                    ${botonesHTML}
                 </div>
             </td>
         </tr>`;
     });
 }
 
-function abrirCita(id, nombre) {
+async function marcarSolucionado(id) {
+    if(!confirm("¿Estás seguro que deseas Marcar este Caso como SOLUCIONADO y Cerrarlo Definitivamente?")) return;
+    try {
+        const res = await fetch(`${API}/denuncias/estado`, {
+            method: "POST", headers:{"Content-Type": "application/json"},
+            body: JSON.stringify({denuncia_id: parseInt(id), estado: 'solucionado'})
+        });
+        if(res.ok) cargarFiscalia();
+    } catch(e) {}
+}
+
+function generarPDFAprehension(nombre, ci) {
+    const doc = new jsPDF('p', 'mm', 'letter');
+    const img = new Image(); img.src = 'citacion.png';
+    img.onload = () => {
+        doc.addImage(img, 'PNG', 15, 10, 25, 30);
+        doc.setFontSize(22); doc.setFont("helvetica", "bold");
+        doc.text("MINISTERIO PÚBLICO - ESTADO PLURINACIONAL", 105, 25, {align: 'center'});
+        doc.setFontSize(16); doc.text("FISCALÍA DE MATERIA PENAL", 105, 35, {align: 'center'});
+        doc.setFontSize(18); doc.setTextColor(239, 68, 68);
+        doc.text("MANDAMIENTO DE APREHENSIÓN", 105, 48, {align: 'center'});
+        doc.setTextColor(0, 0, 0); doc.line(15, 55, 195, 55);
+        doc.setFontSize(12); doc.setFont("helvetica", "normal");
+        const f = new Date().toLocaleDateString('es-BO', { year:'numeric', month:'long', day:'numeric' });
+        doc.text(`En estricto apego al Artículo 226 de la Ley N° 1970, en fecha ${f}, se emite la orden \nde APREHENSIÓN inmediata y conducción obligatoria de la siguiente persona ante las instalaciones \nde la Fiscalía de la materia, por evadir recurrentemente las tres citaciones preventivas emitidas.`, 15, 65);
+        
+        doc.setFont("helvetica", "bold"); doc.text(`APREHENDIDO:`, 15, 85); doc.setFont("helvetica", "normal"); doc.text(`${nombre.toUpperCase()}`, 55, 85);
+        doc.setFont("helvetica", "bold"); doc.text(`CÉDULA IDENTIDAD:`, 15, 95); doc.setFont("helvetica", "normal"); doc.text(`${ci}`, 62, 95);
+        
+        doc.text("Las fuerzas policiales quedan habilitadas e instruidas para la búsqueda y traslado físico del\nciudadano descrito, pudiendo allanar domicilios en horarios habilitados de ser necesario.", 15, 115);
+        
+        doc.line(70, 240, 140, 240);
+        doc.text("FISCAL GENERAL ASIGNADO", 105, 245, {align:'center'});
+
+        const qr = `https://quickchart.io/qr?text=APREHENSION-${ci}&size=100`;
+        const qrImg = new Image(); qrImg.crossOrigin = "Anonymous"; qrImg.src = qr;
+        qrImg.onload = () => { try { doc.addImage(qrImg, 'PNG', 160, 240, 30, 30); } catch(e){} doc.save(`APREHENSION_${ci}.pdf`); };
+        qrImg.onerror = () => { doc.save(`APREHENSION_${ci}.pdf`); };
+    };
+    img.onerror = () => { doc.save(`APREHENSION_${ci}.pdf`); };
+}
+
+function abrirModal(id, nombre) {
     document.getElementById("modal_id").value = id;
     document.getElementById("modal_nombre").value = nombre;
     document.getElementById("modal-citacion").style.display = "flex";
@@ -355,3 +440,22 @@ function descargarHistorialPDF(nombre, ci, numCitaciones) {
 }
 
 function cerrarModal() { document.getElementById("modal-citacion").style.display = "none"; }
+function generarPDFExpediente(nombre, ci, num) {
+    const doc = new jsPDF('p', 'mm', 'letter');
+    const img = new Image(); img.src = 'citacion.png';
+    img.onload = () => {
+        doc.addImage(img, 'PNG', 15, 10, 25, 30);
+        doc.setFontSize(22); doc.setFont("helvetica", "bold");
+        doc.text("SISTEMA REGIONAL DE CONTROL JUDICIAL", 105, 25, {align: 'center'});
+        doc.setFontSize(16); doc.text("HOJA DE EXPEDIENTE PENAL", 105, 35, {align: 'center'});
+        doc.line(15, 45, 195, 45);
+        doc.setFontSize(12); doc.setFont("helvetica", "normal");
+        doc.text("El individuo " + nombre.toUpperCase() + " (CI: " + ci + ") ha sido registrado en el SINCOJ y a la fecha cuenta con " + num + " citaciones procesadas en su contra.", 15, 60, {maxWidth: 180, align: 'justify', lineHeightFactor: 1.5});
+        const qr = "https://quickchart.io/qr?text=EXPEDIENTE-" + ci + "&size=100";
+        const qrImg = new Image(); qrImg.crossOrigin = "Anonymous"; qrImg.src = qr;
+        qrImg.onload = () => { try { doc.addImage(qrImg, 'PNG', 160, 240, 30, 30); } catch(e){} doc.save("EXPEDIENTE_" + ci + ".pdf"); };
+        qrImg.onerror = () => { doc.save("EXPEDIENTE_" + ci + ".pdf"); };
+    };
+    img.onerror = () => { doc.save("EXPEDIENTE_" + ci + ".pdf"); };
+}
+
