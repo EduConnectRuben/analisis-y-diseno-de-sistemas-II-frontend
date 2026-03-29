@@ -18,34 +18,36 @@ async function login() {
             document.getElementById("dashboard").style.display = "block";
             const userRole = data.rol ? data.rol : 'pendiente';
             document.getElementById("user-display").innerText = data.email;
-            document.getElementById("rol-display").innerText = userRole.toUpperCase();
-
-            document.getElementById("view-pendiente").style.display = "none";
-            document.getElementById("view-admin").style.display = "none";
-            document.getElementById("view-policia").style.display = "none";
-            document.getElementById("view-fiscal").style.display = "none";
-
             const sysTitle = document.getElementById("sys-title");
             const sysSub = document.getElementById("sys-subtitle");
 
+            const getCargoNombre = (r) => {
+                if(r === 'admin') return "ADMINISTRADOR GENERAL";
+                if(r === 'policia') return "SARGENTO / OFICIAL";
+                if(r === 'fiscal') return "FISCAL DE MATERIA";
+                return "POSTULANTE / PENDIENTE";
+            };
+
+            document.getElementById("rol-display").innerText = getCargoNombre(userRole);
+
             if (userRole === 'admin') {
-                if(sysTitle) sysTitle.innerText = "PANEL DE ADMINISTRACIÓN";
-                if(sysSub) sysSub.innerText = "SISTEMA DE CONTROL DE OFICIALES";
+                if(sysTitle) sysTitle.innerText = "DIRECCIÓN GENERAL - PD8";
+                if(sysSub) sysSub.innerText = "CENTRO DE CONTROL Y GESTIÓN DE MANDOS";
                 document.getElementById("view-admin").style.display = "block";
                 cargarAdmin();
             } else if (userRole === 'policia') {
-                if(sysTitle) sysTitle.innerText = "SISTEMA POLICIAL OFICIAL";
-                if(sysSub) sysSub.innerText = "FUERZA ESPECIAL DE LUCHA CONTRA EL CRIMEN";
+                if(sysTitle) sysTitle.innerText = "SISTEMA POLICIAL PD-8";
+                if(sysSub) sysSub.innerText = "REGISTRO DE DENUNCIAS Y ANTECEDENTES PENALES";
                 document.getElementById("view-policia").style.display = "block";
                 cargarDenunciasPolicia();
             } else if (userRole === 'fiscal') {
-                if(sysTitle) sysTitle.innerText = "MINISTERIO PÚBLICO";
-                if(sysSub) sysSub.innerText = "FISCALÍA DE MATERIA PENAL";
+                if(sysTitle) sysTitle.innerText = "MINISTERIO PÚBLICO DE BOLIVIA";
+                if(sysSub) sysSub.innerText = "FISCALÍA DE CONTROL JURISDICCIONAL";
                 document.getElementById("view-fiscal").style.display = "block";
                 cargarFiscalia();
             } else {
                 if(sysTitle) sysTitle.innerText = "ACCESO RESTRINGIDO";
-                if(sysSub) sysSub.innerText = "VERIFICANDO CREDENCIALES";
+                if(sysSub) sysSub.innerText = "SOLICITUD DE INGRESO EN PROCESO";
                 document.getElementById("view-pendiente").style.display = "block";
             }
         } else {
@@ -92,10 +94,17 @@ async function cargarAdmin() {
     const users = await res.json();
     const tbody = document.getElementById("lista-admin");
     tbody.innerHTML = "";
+    const getCargoNombre = (r) => {
+        if(r === 'admin') return "ADMINISTRADOR GENERAL";
+        if(r === 'policia') return "SARGENTO / OFICIAL";
+        if(r === 'fiscal') return "FISCAL DE MATERIA";
+        return "POSTULANTE";
+    };
+
     users.forEach(u => {
         tbody.innerHTML += `<tr>
             <td style="font-size:13px; font-weight:500;">${u[1]}</td>
-            <td><span class="badge" style="background:${u[2]==='pendiente'?'#EF4444':(u[2]==='policia'?'#3B82F6':'#F59E0B')}">${u[2].toUpperCase()}</span></td>
+            <td><span class="badge" style="background:${u[2]==='pendiente'?'#EF4444':(u[2]==='policia'?'#3B82F6':'#F59E0B')}">${getCargoNombre(u[2])}</span></td>
             <td>
                 <div class="btn-container" style="display:flex; gap:5px; justify-content:flex-start;">
                     <button onclick="asignar(${u[0]},'policia')" class="btn-blue" style="width:auto; padding:6px 12px; font-size:11px; font-weight:bold; letter-spacing:0.5px; border-radius:4px;">Asignar Policía</button>
